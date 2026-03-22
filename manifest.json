@@ -1,0 +1,25 @@
+{
+  "name": "我的名單管理系統",
+  "short_name": "名單管理",
+  "description": "美安事業潛在客戶管理系統",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0072CE",
+  "theme_color": "#0072CE",
+  "lang": "zh-TW",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
