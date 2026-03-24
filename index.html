@@ -42,10 +42,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);
 .ntab.on{background:#fff;color:var(--ac);font-weight:500}
 
 /* SEARCH */
-.sb{background:var(--sur2);padding:.65rem 1.25rem;display:flex;gap:.6rem;align-items:center}
+.sb{background:var(--sur2);padding:.65rem 1.25rem;padding-right:max(1.25rem, env(safe-area-inset-right) + 0.75rem);display:flex;gap:.6rem;align-items:center}
 .si{flex:1;padding:.55rem .9rem;border-radius:20px;border:1.5px solid var(--bd);background:var(--sur);font-family:'Noto Sans TC',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s}
 .si:focus{border-color:var(--ac2)}
-.fab{width:38px;height:38px;border-radius:50%;background:var(--ac);color:#fff;border:none;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh);flex-shrink:0;transition:transform .15s}
+.fab{width:38px;height:38px;border-radius:50%;background:var(--ac);color:#fff;border:none;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh);flex-shrink:0;transition:transform .15s;margin-right:4px}
 .fab:active{transform:scale(.9)}
 
 /* FILTER */
@@ -362,14 +362,14 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);
   </div>
 </div>
 
-<!-- Talk Record Modal -->
+<!-- 跟進記錄 Modal -->
 <div class="mo" id="trm">
   <div class="mc">
-    <div class="mt" id="trmt">新增會面記錄</div>
+    <div class="mt" id="trmt">新增跟進記錄</div>
 
     <div class="fr2">
       <div class="fg">
-        <label class="fl">會面類型</label>
+        <label class="fl">跟進類型</label>
         <select id="ttype" class="fsel">
           <option value="chat">💬 聊天／訊息</option>
           <option value="call">📞 電話</option>
@@ -378,18 +378,18 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);
           <option value="other">📝 其他</option>
         </select>
       </div>
-      <div class="fg"><label class="fl">日期 *</label><input id="tdate" class="fi" type="date"></div>
+      <div class="fg"><label class="fl">日期</label><input id="tdate" class="fi" type="date"></div>
     </div>
 
-    <!-- 會面前 Leader 討論 -->
-    <div class="tr-section-title">會面前</div>
-    <div class="fg"><label class="fl">會面前 Leader 討論</label><textarea id="t_pre_leader" class="fta" placeholder="會面前和 Leader 討論了什麼、得到哪些建議…"></textarea></div>
+    <!-- 跟進前 Leader 討論 -->
+    <div class="tr-section-title">跟進前</div>
+    <div class="fg"><label class="fl">跟進前 Leader 討論</label><textarea id="t_pre_leader" class="fta" placeholder="跟進前和 Leader 討論了什麼、得到哪些建議…"></textarea></div>
 
-    <!-- 會面內容 -->
-    <div class="tr-section-title">會面中</div>
-    <!-- 本次會面進度（多選） -->
+    <!-- 跟進內容 -->
+    <div class="tr-section-title">跟進中</div>
+    <!-- 本次跟進進度（多選） -->
     <div class="fg">
-      <label class="fl">本次會面進度（可多選）</label>
+      <label class="fl">本次跟進進度（可多選）</label>
       <div class="checkgroup" id="progress-group">
         <label class="ck-item"><input type="checkbox" value="build_rel"> 建立關係</label>
         <label class="ck-item"><input type="checkbox" value="invite"> 邀約</label>
@@ -400,7 +400,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);
       </div>
       <textarea id="t_other_meeting_note" class="fta" placeholder="會議備註（進入哪個會議、細節…）" style="margin-top:.5rem;display:none"></textarea>
     </div>
-    <div class="fg"><label class="fl">會面內容 / 摘要 *</label><textarea id="tcont" class="fta tall" placeholder="這次聊了什麼、分享了哪些資訊…"></textarea></div>
+    <div class="fg"><label class="fl">跟進內容 / 摘要</label><textarea id="tcont" class="fta tall" placeholder="這次聊了什麼、分享了哪些資訊…"></textarea></div>
     <div class="fg"><label class="fl">對方的反應</label><textarea id="treac" class="fta" placeholder="對方的態度、提出的問題、感興趣的點…"></textarea></div>
 
     <!-- 下次約會 -->
@@ -408,10 +408,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);
     <div class="fg"><label class="fl">日期時間</label><input id="t_next_dt" class="fi" type="datetime-local"></div>
     <div class="fg"><label class="fl">地點</label><input id="t_next_loc" class="fi" placeholder="咖啡廳名稱、地址或線上…"></div>
 
-    <!-- 會面後 -->
-    <div class="tr-section-title">會面後</div>
-    <div class="fg"><label class="fl">預計行動</label><textarea id="t_action" class="fta" placeholder="會面後打算採取什麼行動…"></textarea></div>
-    <div class="fg"><label class="fl">會面後 Leader 討論</label><textarea id="t_post_leader" class="fta" placeholder="會面後和 Leader 回顧了什麼、得到哪些指導…"></textarea></div>
+    <!-- 跟進後 -->
+    <div class="tr-section-title">跟進後</div>
+    <div class="fg"><label class="fl">預計行動</label><textarea id="t_action" class="fta" placeholder="跟進後打算採取什麼行動…"></textarea></div>
+    <div class="fg"><label class="fl">跟進後 Leader 討論</label><textarea id="t_post_leader" class="fta" placeholder="跟進後和 Leader 回顧了什麼、得到哪些指導…"></textarea></div>
     <div class="fg"><label class="fl">下次跟進計畫</label><textarea id="tnext" class="fta" placeholder="下一步打算怎麼跟進…"></textarea></div>
 
     <div class="ma">
@@ -539,7 +539,7 @@ function rl(){
           <div class="fw ${nf?'':'no'}"></div>
         </div>
       </div>
-      ${ln?`<div class="clast">${TL[ln.type]||''} · ${ln.date} · ${ln.content.slice(0,50)}${ln.content.length>50?'…':''}</div>`:''}
+      ${ln?`<div class="clast">${TL[ln.type]||''} · ${ln.date} · ${(ln.content||'（無內容）').slice(0,50)}${(ln.content||'').length>50?'…':''}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -711,7 +711,7 @@ function renderDB(c){
     <div class="fhg">${fhCards}</div>
 
     <div class="sh2">
-      <h3>會面記錄（${(c.talks||[]).length} 筆）</h3>
+      <h3>跟進記錄（${(c.talks||[]).length} 筆）</h3>
       <button class="anb" onclick="openTR()">＋ 新增</button>
     </div>
     ${talks.length?talks.map((t,ri)=>{
@@ -728,14 +728,14 @@ function renderDB(c){
           <span class="tr-chevron${isFirst?' up':''}">▼</span>
         </div>
         <div class="tr-block-body${isFirst?'':' hidden'}">
-          ${t.preLeader?`<div class="tr-seg"><div class="tr-sec-hd">會面前</div><div class="tr-leader-blk"><div class="trsl2">Leader 討論</div><div class="trsv2">${t.preLeader}</div></div></div>`:''}
+          ${t.preLeader?`<div class="tr-seg"><div class="tr-sec-hd">跟進前</div><div class="tr-leader-blk"><div class="trsl2">Leader 討論</div><div class="trsv2">${t.preLeader}</div></div></div>`:''}
           ${t.progress&&t.progress.length?`<div class="tr-seg"><div class="tr-sec-hd">本次進度</div><div class="tr-ptags">${progTags}</div>${t.otherMeetingNote?`<div class="trsl2" style="margin-top:.5rem">備註</div><div class="trsv2">${t.otherMeetingNote}</div>`:''}</div>`:''}
-          <div class="tr-seg"><div class="tr-sec-hd">會面中</div>
-            ${t.content?`<div class="trsl2">會面內容</div><div class="trsv2">${t.content}</div>`:''}
+          <div class="tr-seg"><div class="tr-sec-hd">跟進中</div>
+            ${t.content?`<div class="trsl2">跟進內容</div><div class="trsv2">${t.content}</div>`:''}
             ${t.reaction?`<div class="trsl2">對方反應</div><div class="trsv2">${t.reaction}</div>`:''}
           </div>
           ${(t.nextDt||t.nextLoc)?`<div class="tr-seg"><div class="tr-sec-hd">下次約會</div><div class="tr-appt-blk">${t.nextDt?`<div class="trsl2">時間</div><div class="trsv2">📅 ${fmtDt(t.nextDt)}</div>`:''} ${t.nextLoc?`<div class="trsl2">地點</div><div class="trsv2">📍 ${t.nextLoc}</div>`:''}</div></div>`:''}
-          ${(t.action||t.postLeader||t.nextPlan)?`<div class="tr-seg"><div class="tr-sec-hd">會面後</div>
+          ${(t.action||t.postLeader||t.nextPlan)?`<div class="tr-seg"><div class="tr-sec-hd">跟進後</div>
             ${t.action?`<div class="trsl2">預計行動</div><div class="trsv2">${t.action}</div>`:''}
             ${t.postLeader?`<div class="tr-leader-blk" style="margin-top:.4rem"><div class="trsl2">Leader 討論</div><div class="trsv2">${t.postLeader}</div></div>`:''}
             ${t.nextPlan?`<div class="trsl2">下次跟進計畫</div><div class="trsv2">${t.nextPlan}</div>`:''}
@@ -743,7 +743,7 @@ function renderDB(c){
         </div>
       </div>`;
     }).join(''):
-    `<div style="text-align:center;padding:1.5rem;color:var(--tx3);font-size:.85rem">還沒有會面記錄<br>點右上角「＋ 新增」開始記錄</div>`}
+    `<div style="text-align:center;padding:1.5rem;color:var(--tx3);font-size:.85rem">還沒有跟進記錄<br>點右上角「＋ 新增」開始記錄</div>`}
 
     ${c.isVip?`
     <div class="sh2" style="margin-top:1.5rem">
@@ -864,13 +864,13 @@ function saveFH(){
   sav();closeM('fhm');renderDB(c);
 }
 
-// TALK RECORD
+// 跟進記錄
 const PROGRESS_LABELS={build_rel:'建立關係',invite:'邀約',show_plan:'展示計劃',abc_ubp:'ABC / UBP',close:'締結',other_meeting:'進入其他會議'};
 let ETI=null; // editing talk index
 
 function openTR(){
   ETI=null;
-  document.getElementById('trmt').textContent='新增會面記錄';
+  document.getElementById('trmt').textContent='新增跟進記錄';
   document.getElementById('trdelbtn').style.display='none';
   ['tcont','treac','tnext','t_pre_leader','t_post_leader','t_action','t_other_meeting_note','t_next_loc'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('ttype').value='chat';
@@ -887,7 +887,7 @@ function openTREdit(idx){
   const c=CS.find(x=>x.id===CID);if(!c||!c.talks)return;
   const t=c.talks[idx];
   ETI=idx;
-  document.getElementById('trmt').textContent='編輯會面記錄';
+  document.getElementById('trmt').textContent='編輯跟進記錄';
   document.getElementById('trdelbtn').style.display='';
   document.getElementById('ttype').value=t.type||'chat';
   document.getElementById('tdate').value=t.date||today();
@@ -908,9 +908,8 @@ function openTREdit(idx){
   openM('trm');
 }
 
+// 修改：移除必填驗證，所有欄位皆為選填
 function saveTR(){
-  const content=document.getElementById('tcont').value.trim();
-  if(!content){document.getElementById('tcont').focus();return}
   const c=CS.find(x=>x.id===CID);if(!c)return;
   if(!c.talks)c.talks=[];
   const progress=Array.from(document.querySelectorAll('#progress-group input[type=checkbox]')).filter(cb=>cb.checked).map(cb=>cb.value);
@@ -920,7 +919,7 @@ function saveTR(){
     preLeader:document.getElementById('t_pre_leader').value.trim(),
     progress,
     otherMeetingNote:document.getElementById('t_other_meeting_note').value.trim(),
-    content,
+    content:document.getElementById('tcont').value.trim(),
     reaction:document.getElementById('treac').value.trim(),
     nextDt:document.getElementById('t_next_dt').value,
     nextLoc:document.getElementById('t_next_loc').value.trim(),
@@ -935,7 +934,7 @@ function saveTR(){
 
 function delTR(idx){
   const c=CS.find(x=>x.id===CID);if(!c||!c.talks)return;
-  if(!confirm('確定刪除這筆會面記錄？'))return;
+  if(!confirm('確定刪除這筆跟進記錄？'))return;
   c.talks.splice(idx,1);sav();renderDB(c);
 }
 
@@ -953,7 +952,7 @@ function toggleTR(idx){
 function delTREditing(){
   if(ETI===null)return;
   const c=CS.find(x=>x.id===CID);if(!c||!c.talks)return;
-  if(!confirm('確定刪除這筆會面記錄？'))return;
+  if(!confirm('確定刪除這筆跟進記錄？'))return;
   c.talks.splice(ETI,1);ETI=null;
   sav();closeM('trm');renderDB(c);
 }
