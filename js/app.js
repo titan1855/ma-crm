@@ -2,8 +2,8 @@
  * app.js — 應用進入點
  * 初始化 Firebase Auth、路由、全域狀態
  */
-import { onUserReady, login, logout, checkAllowList, getCurrentUser, isAdmin } from './auth.js';
-import { getProfile, setProfile, serverTimestamp } from './db.js';
+import { onUserReady, login, logout, checkAllowList } from './auth.js';
+import { getProfile, setProfile, serverTimestamp, setCurrentUid } from './db.js';
 import { initRouter, registerTab, navigate } from './router.js';
 import { initMigration } from './migration.js';
 import { toast, getGreeting } from './utils.js';
@@ -238,6 +238,8 @@ async function init() {
 
     state.user = user;
     state.isAdmin = allowed.role === 'admin';
+    // 把 UID 明確存入 db.js，之後所有 Firestore 操作使用此 UID
+    setCurrentUid(user.uid);
 
     // 讀取 profile
     let profile;

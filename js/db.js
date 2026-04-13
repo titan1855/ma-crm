@@ -18,7 +18,6 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { db } from './firebase-config.js';
-import { getCurrentUser } from './auth.js';
 
 // 重新 export Firebase 原生函式，讓模組不需直接引用 SDK
 export {
@@ -26,13 +25,23 @@ export {
   getDocs, query, where, orderBy, onSnapshot, serverTimestamp
 };
 
+// 登入後由 app.js 呼叫 setCurrentUid() 設定，避免 getCurrentUser() 時序問題
+let _uid = null;
+
+export function setCurrentUid(uid) {
+  _uid = uid;
+}
+
+export function getCurrentUid() {
+  return _uid;
+}
+
 /**
  * 取得 users/{uid}/{collectionName} 的 CollectionReference
  */
 export function userCollection(name) {
-  const user = getCurrentUser();
-  if (!user) throw new Error('未登入，無法存取資料');
-  return collection(db, 'users', user.uid, name);
+  if (!_uid) throw new Error('未登入，無法存取資料');
+  return collection(db, 'users', _uid, name);
 }
 
 /**
@@ -40,9 +49,8 @@ export function userCollection(name) {
  * @param {...string} pathSegments 路徑片段，例如 'profile' 或 'pool', 'abc123'
  */
 export function userDoc(...pathSegments) {
-  const user = getCurrentUser();
-  if (!user) throw new Error('未登入，無法存取資料');
-  return doc(db, 'users', user.uid, ...pathSegments);
+  if (!_uid) throw new Error('未登入，無法存取資料');
+  return doc(db, 'users', _uid, ...pathSegments);
 }
 
 /** 讀取使用者 profile（找不到文件返回 null；真正的錯誤往上拋） */
