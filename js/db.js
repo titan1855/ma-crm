@@ -37,7 +37,19 @@ export function getCurrentUid() {
 }
 
 /**
- * 取得 users/{uid}/{collectionName} 的 CollectionReference
+ * 使用者根文件 DocumentReference：users/{uid}
+ * ★ profile / achievements 等「單一文件」都存在這裡
+ *   路徑 2 節點（偶數）= 合法 Document
+ */
+export function userRootDoc() {
+  if (!_uid) throw new Error('未登入，無法存取資料');
+  return doc(db, 'users', _uid);
+}
+
+/**
+ * 子集合 CollectionReference：users/{uid}/{collectionName}
+ * ★ pool、prospects、daily312 等多筆資料的集合
+ *   路徑 3 節點（奇數）= 合法 Collection
  */
 export function userCollection(name) {
   if (!_uid) throw new Error('未登入，無法存取資料');
@@ -45,23 +57,23 @@ export function userCollection(name) {
 }
 
 /**
- * 取得 users/{uid}/{...path} 的 DocumentReference
- * @param {...string} pathSegments 路徑片段，例如 'profile' 或 'pool', 'abc123'
+ * 子集合中的 Document Reference：users/{uid}/{collectionName}/{docId}
+ *   路徑 4 節點（偶數）= 合法 Document
  */
-export function userDoc(...pathSegments) {
+export function userSubDoc(collectionName, docId) {
   if (!_uid) throw new Error('未登入，無法存取資料');
-  return doc(db, 'users', _uid, ...pathSegments);
+  return doc(db, 'users', _uid, collectionName, docId);
 }
 
 /** 讀取使用者 profile（找不到文件返回 null；真正的錯誤往上拋） */
 export async function getProfile() {
-  const snap = await getDoc(userDoc('profile'));
+  const snap = await getDoc(userRootDoc());
   return snap.exists() ? snap.data() : null;
 }
 
-/** 寫入 / 合併更新 profile */
+/** 寫入 / 合併更新 profile（merge:true 不會覆蓋其他欄位） */
 export async function setProfile(data) {
-  return setDoc(userDoc('profile'), data, { merge: true });
+  return setDoc(userRootDoc(), data, { merge: true });
 }
 
 /**
