@@ -1,8 +1,27 @@
-const CACHE = 'ma-crm-v2';
+const CACHE = 'ma-crm-v3';
+
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './css/style.css',
+  './js/app.js',
+  './js/firebase-config.js',
+  './js/auth.js',
+  './js/db.js',
+  './js/utils.js',
+  './js/router.js',
+  './js/migration.js',
+  './js/modules/daily312.js',
+  './js/modules/prospects.js',
+  './js/modules/pool.js',
+  './js/modules/calendar.js',
+  './js/modules/products.js',
+  './js/modules/mufo.js',
+  './js/modules/challenges.js',
+  './js/modules/achievements.js',
+  './js/modules/weekly.js',
+  './js/modules/onboarding.js',
   './icon-192.png',
   './icon-512.png',
   'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display&display=swap'
@@ -10,11 +29,9 @@ const ASSETS = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(cache => {
-      return Promise.allSettled(
-        ASSETS.map(url => cache.add(url).catch(() => {}))
-      );
-    })
+    caches.open(CACHE).then(cache =>
+      Promise.allSettled(ASSETS.map(url => cache.add(url).catch(() => {})))
+    )
   );
   self.skipWaiting();
 });
@@ -29,6 +46,17 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Firebase / Google API 請求不快取，讓它走網路
+  const url = e.request.url;
+  if (
+    url.includes('firebaseapp.com') ||
+    url.includes('googleapis.com/google.firestore') ||
+    url.includes('identitytoolkit') ||
+    url.includes('securetoken.googleapis')
+  ) {
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;

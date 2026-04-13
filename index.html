@@ -1,1026 +1,156 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>我的名單管理系統</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0072CE">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="我的名單管理系統">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#F6F4EF;--sur:#FFF;--sur2:#EEEAE2;--ac:#1B5E3B;--ac2:#3A9E6F;--acl:#D6EEDF;--tx:#1A1A1A;--tx2:#555;--tx3:#999;--bd:#E0DBD1;--dg:#B83030;--dgl:#FCEAEA;--wn:#D4800A;--wnl:#FEF3E0;--inf:#1A6FA8;--infl:#E8F3FB;--pu:#6B3FA0;--pul:#F0E8FA;--r:12px;--rs:8px;--sh:0 2px 10px rgba(0,0,0,.06)}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;max-width:480px;margin:0 auto;position:relative;font-size:15px}
-
-/* SETUP */
-#setup{position:fixed;inset:0;z-index:200;background:linear-gradient(150deg,#0D3320 0%,#1B5E3B 55%,#2D8A5A 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;transition:opacity .5s,transform .5s}
-#setup.out{opacity:0;transform:scale(1.05);pointer-events:none}
-.sl{font-family:'DM Serif Display',serif;font-size:2rem;color:#fff;margin-bottom:.3rem}
-.ss{color:rgba(255,255,255,.55);font-size:.82rem;margin-bottom:2.5rem}
-.sc{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:1.75rem;width:100%}
-.slb{color:rgba(255,255,255,.75);font-size:.8rem;margin-bottom:.5rem}
-.si2{width:100%;padding:.85rem 1rem;border-radius:var(--r);border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;font-size:1.05rem;font-family:'Noto Sans TC',sans-serif;outline:none}
-.si2::placeholder{color:rgba(255,255,255,.4)}
-.si2:focus{border-color:rgba(255,255,255,.65)}
-.sbtn{width:100%;margin-top:1.25rem;padding:.9rem;background:#fff;color:#1B5E3B;border:none;border-radius:var(--r);font-size:.95rem;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer}
-.sbtn:active{transform:scale(.97)}
-
-/* HEADER */
-.hd{background:var(--ac);padding:.9rem 1.25rem .6rem;position:sticky;top:0;z-index:50}
-.ht{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.65rem}
-.htitle{font-family:'DM Serif Display',serif;color:#fff;font-size:1.15rem;line-height:1.25}
-.hname{font-family:'Noto Sans TC',sans-serif;font-size:.68rem;color:rgba(255,255,255,.6);font-weight:300;display:block;margin-bottom:2px}
-.hpills{display:flex;gap:.5rem;flex-shrink:0;margin-top:2px}
-.hp{background:rgba(255,255,255,.15);border-radius:20px;padding:.18rem .65rem;color:#fff;font-size:.72rem}
-.hp b{font-weight:700}
-.nav{display:flex;background:rgba(0,0,0,.18);border-radius:var(--rs);padding:3px;gap:2px}
-.ntab{flex:1;text-align:center;padding:.4rem .2rem;font-size:.76rem;color:rgba(255,255,255,.6);border-radius:6px;cursor:pointer;transition:all .2s}
-.ntab.on{background:#fff;color:var(--ac);font-weight:500}
-
-/* SEARCH */
-.sb{background:var(--sur2);padding:.65rem 1.25rem;padding-right:max(1.25rem, env(safe-area-inset-right) + 0.75rem);display:flex;gap:.6rem;align-items:center}
-.si{flex:1;padding:.55rem .9rem;border-radius:20px;border:1.5px solid var(--bd);background:var(--sur);font-family:'Noto Sans TC',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s}
-.si:focus{border-color:var(--ac2)}
-.fab{width:38px;height:38px;border-radius:50%;background:var(--ac);color:#fff;border:none;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh);flex-shrink:0;transition:transform .15s;margin-right:4px}
-.fab:active{transform:scale(.9)}
-
-/* FILTER */
-.fc{padding:.45rem 1.25rem;display:flex;gap:.45rem;overflow-x:auto}
-.fc::-webkit-scrollbar{display:none}
-.fchip{flex-shrink:0;padding:.28rem .85rem;border-radius:20px;font-size:.75rem;cursor:pointer;border:1.5px solid var(--bd);background:var(--sur);color:var(--tx2);transition:all .15s}
-.fchip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
-
-/* LIST */
-#cv{padding:.5rem 1.25rem 6rem}
-.cc{background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);margin-bottom:.7rem;overflow:hidden;box-shadow:var(--sh)}
-.cm2{display:flex;align-items:center;gap:.85rem;padding:.85rem 1rem;cursor:pointer}
-.av{width:42px;height:42px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem;color:#fff}
-.ci{flex:1;min-width:0}
-.cn{font-weight:500;font-size:.92rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
-.cm3{font-size:.75rem;color:var(--tx3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cr{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.sb2{font-size:.68rem;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap}
-.fw{width:8px;height:8px;border-radius:50%;background:var(--wn)}
-.fw.no{background:transparent}
-.s-cont{background:var(--infl);color:var(--inf)}
-.s-stop{background:#F5F5F5;color:#aaa}
-.s-signed{background:#FFF8E1;color:#B8860B;border:1px solid #F0C040}
-.s-vip{background:#FEF3E0;color:#B8500A}
-.clast{padding:.5rem 1rem .7rem 4rem;font-size:.75rem;color:var(--tx3);line-height:1.45;border-top:1px solid var(--bd)}
-
-/* FOLLOWUP TAB */
-#fv{padding:.6rem 1.25rem 6rem;display:none}
-.sec{font-size:.72rem;font-weight:500;color:var(--tx3);letter-spacing:.07em;text-transform:uppercase;margin:.75rem 0 .45rem}
-.fuc{background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);padding:.8rem 1rem;margin-bottom:.55rem;box-shadow:var(--sh);display:flex;gap:.75rem;cursor:pointer}
-.fudot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0}
-.fu-r{background:var(--dg)}.fu-y{background:var(--wn)}.fu-g{background:var(--ac2)}
-.fui{flex:1}
-.fun{font-weight:500;font-size:.88rem}
-.funn{font-size:.78rem;color:var(--tx2);margin-top:2px}
-.fud{font-size:.7rem;color:var(--tx3);margin-top:3px}
-
-/* DETAIL PANEL */
-#dp{position:fixed;inset:0;z-index:80;background:var(--bg);transform:translateX(102%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;max-width:480px;margin:0 auto}
-#dp.open{transform:translateX(0)}
-.ph{background:var(--ac);padding:.9rem 1.25rem;display:flex;align-items:center;gap:.75rem;position:sticky;top:0;z-index:5}
-.pbk{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;padding:.15rem .3rem}
-.pn{font-family:'DM Serif Display',serif;color:#fff;font-size:1.15rem;flex:1}
-.peb{background:rgba(255,255,255,.2);border:none;color:#fff;padding:.35rem .85rem;border-radius:20px;font-size:.78rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
-.db{padding:1.25rem}
-
-/* FORMHD grid */
-.fhg{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:1.1rem}
-.fhc{background:var(--sur);border-radius:var(--rs);border:1px solid var(--bd);padding:.65rem .85rem;transition:border-color .15s,box-shadow .15s}
-.fhc:hover{border-color:var(--ac2);box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.fhc.full{grid-column:span 2}
-.fhlb{font-size:.68rem;font-weight:500;margin-bottom:.3rem;display:flex;align-items:center;gap:.3rem}
-.fhv{font-size:.82rem;color:var(--tx);line-height:1.5;min-height:1.2rem}
-.fhv.emp{color:var(--tx3);font-style:italic}
-
-/* info rows */
-.irow{display:flex;align-items:flex-start;padding:.55rem 0;border-bottom:1px solid var(--bd)}
-.irow:last-child{border-bottom:none}
-.ilb{font-size:.75rem;color:var(--tx3);width:70px;flex-shrink:0;padding-top:1px}
-.ivl{font-size:.88rem;font-weight:500;color:var(--tx);flex:1}
-
-.sh2{display:flex;align-items:center;justify-content:space-between;margin:1.1rem 0 .55rem}
-.sh2 h3{font-size:.82rem;font-weight:500;color:var(--tx2)}
-.anb{background:var(--acl);color:var(--ac);border:none;border-radius:20px;padding:.28rem .8rem;font-size:.76rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-weight:500}
-
-/* talk record cards */
-.tr{background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);padding:1rem;margin-bottom:.7rem;position:relative}
-.trh{display:flex;align-items:center;gap:.5rem;margin-bottom:.7rem}
-.trt{font-size:.7rem;padding:2px 9px;border-radius:8px;font-weight:500}
-.tt-chat{background:#E8F5E9;color:#2E7D32}
-.tt-call{background:var(--infl);color:var(--inf)}
-.tt-meet{background:var(--wnl);color:var(--wn)}
-.tt-social{background:var(--pul);color:var(--pu)}
-.tt-other{background:#F5F5F5;color:#888}
-.trd{font-size:.72rem;color:var(--tx3);flex:1}
-.trdel{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:.8rem;padding:.15rem .3rem}
-.trs{margin-bottom:.55rem}
-.trs:last-child{margin-bottom:0}
-.trsl{font-size:.7rem;color:var(--tx3);margin-bottom:3px}
-.trsv{font-size:.84rem;color:var(--tx);line-height:1.55}
-.trl{background:var(--acl);border-radius:var(--rs);padding:.5rem .7rem}
-.trl .trsl{color:var(--ac)}
-.trl .trsv{color:#1B5E3B}
-
-/* MODALS */
-.mo{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
-.mo.open{opacity:1;pointer-events:all}
-.mc{background:var(--sur);border-radius:20px 20px 0 0;padding:1.4rem 1.25rem 2rem;width:100%;max-width:480px;transform:translateY(102%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:88vh;overflow-y:auto}
-.mc::before{content:'';display:block;width:34px;height:4px;background:var(--bd);border-radius:2px;margin:-0.6rem auto 1.1rem}
-.mo.open .mc{transform:translateY(0)}
-.mt{font-size:.98rem;font-weight:700;margin-bottom:1.1rem}
-.fg{margin-bottom:.9rem}
-.fl{font-size:.76rem;color:var(--tx2);margin-bottom:.38rem;display:block}
-.fi,.fsel,.fta{width:100%;padding:.65rem .9rem;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--sur);font-family:'Noto Sans TC',sans-serif;font-size:.88rem;color:var(--tx);outline:none;transition:border-color .2s;appearance:none}
-.fi:focus,.fsel:focus,.fta:focus{border-color:var(--ac2)}
-.fta{resize:none;min-height:80px;line-height:1.55}
-.fta.tall{min-height:100px}
-.fr2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-.ma{display:flex;gap:.65rem;margin-top:1.1rem}
-.bc{flex:1;padding:.75rem;border-radius:var(--rs);border:1.5px solid var(--bd);background:transparent;font-family:'Noto Sans TC',sans-serif;font-size:.88rem;color:var(--tx2);cursor:pointer}
-.bs{flex:2;padding:.75rem;border-radius:var(--rs);border:none;background:var(--ac);color:#fff;font-family:'Noto Sans TC',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer}
-.bs:active{opacity:.85}
-.bdng{background:var(--dg)!important;flex:1}
-
-/* FORMHD tabs in modal */
-.fhtabs{display:flex;gap:4px;margin-bottom:1rem;flex-wrap:wrap}
-.fhtab{padding:.3rem .75rem;border-radius:20px;font-size:.76rem;cursor:pointer;border:1.5px solid var(--bd);background:transparent;color:var(--tx2);font-family:'Noto Sans TC',sans-serif;transition:all .15s}
-.fhtab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
-
-/* talk record section titles & checkboxes */
-.tr-section-title{font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.06em;text-transform:uppercase;padding:.45rem .85rem;background:var(--acl);border-radius:var(--rs);margin:.25rem 0 .75rem}
-.checkgroup{display:flex;flex-direction:column;gap:.45rem;background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--rs);padding:.65rem .9rem}
-.ck-item{display:flex;align-items:center;gap:.6rem;font-size:.88rem;color:var(--tx);cursor:pointer;padding:.15rem 0}
-.ck-item input[type=checkbox]{width:17px;height:17px;accent-color:var(--ac);cursor:pointer;flex-shrink:0}
-/* talk record display blocks */
-.tr-block{background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);overflow:hidden;margin-bottom:.6rem}
-.tr-block-hd{background:var(--sur2);padding:.55rem .9rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;border-bottom:1px solid var(--bd);transition:background .15s}
-.tr-block-hd:hover{background:var(--bd)}
-.tr-block-hd.collapsed{border-bottom:none}
-.tr-chevron{margin-left:auto;font-size:.75rem;color:var(--tx3);transition:transform .2s;display:inline-block}
-.tr-chevron.up{transform:rotate(180deg)}
-.tr-block-body{padding:.85rem .9rem}
-.tr-block-body.hidden{display:none}
-.tr-seg{margin-bottom:.65rem}
-.tr-seg:last-child{margin-bottom:0}
-.tr-sec-hd{font-size:.68rem;font-weight:700;color:var(--ac);letter-spacing:.06em;text-transform:uppercase;padding:.28rem .6rem;background:var(--acl);border-radius:5px;display:inline-block;margin-bottom:.5rem}
-.trsl2{font-size:.7rem;color:var(--tx3);margin-bottom:3px;margin-top:.45rem}
-.trsv2{font-size:.84rem;color:var(--tx);line-height:1.6}
-.tr-leader-blk{background:var(--acl);border-radius:var(--rs);padding:.5rem .7rem;margin-top:.3rem}
-.tr-leader-blk .trsl2{color:var(--ac)}
-.tr-leader-blk .trsv2{color:#1B5E3B}
-.tr-appt-blk{background:var(--wnl);border-radius:var(--rs);padding:.5rem .7rem;margin-top:.3rem}
-.tr-appt-blk .trsl2{color:var(--wn)}
-.tr-appt-blk .trsv2{color:#7A4500;font-weight:500}
-.tr-ptags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.35rem}
-.tr-ptag{font-size:.72rem;padding:3px 10px;border-radius:10px;background:var(--infl);color:var(--inf);font-weight:500}
-
-/* sales record */
-.sale-card{background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);padding:.85rem 1rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.85rem;box-shadow:var(--sh);cursor:pointer}
-.sale-icon{width:38px;height:38px;border-radius:50%;background:#FEF3E0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
-.sale-info{flex:1;min-width:0}
-.sale-item{font-weight:500;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sale-meta{font-size:.75rem;color:var(--tx3);margin-top:2px}
-.sale-amt{font-size:1rem;font-weight:700;color:#B8500A;flex-shrink:0}
-.sale-total{background:var(--sur2);border-radius:var(--rs);padding:.6rem 1rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
-.sale-total-label{font-size:.78rem;color:var(--tx2)}
-.sale-total-val{font-size:1.05rem;font-weight:700;color:#B8500A}
-
-/* calendar */
-.vm-btn{padding:.28rem .75rem;border-radius:18px;border:none;background:transparent;font-size:.76rem;color:var(--tx2);font-family:'Noto Sans TC',sans-serif;cursor:pointer;transition:all .15s}
-.vm-on{background:#fff;color:var(--ac);font-weight:500;box-shadow:0 1px 4px rgba(0,0,0,.1)}
-.cal-grid-month{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:.25rem}
-.cal-dow{text-align:center;font-size:.65rem;color:var(--tx3);padding:.3rem 0;font-weight:500}
-.cal-cell{min-height:36px;border-radius:var(--rs);display:flex;flex-direction:column;align-items:center;padding:.3rem .15rem;cursor:pointer;position:relative;transition:background .15s}
-.cal-cell:hover{background:var(--sur2)}
-.cal-cell.today .cal-num{background:var(--ac);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
-.cal-cell.selected{background:var(--acl)}
-.cal-cell.other-month .cal-num{color:var(--tx3)}
-.cal-num{font-size:.78rem;font-weight:500;color:var(--tx);line-height:1;margin-bottom:2px;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
-.cal-dot-row{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;max-width:32px}
-.cal-dot{width:5px;height:5px;border-radius:50%;background:var(--ac2);flex-shrink:0}
-.cal-week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cal-week-cell{border-radius:var(--rs);padding:.4rem .1rem;cursor:pointer;text-align:center;transition:background .15s;min-height:52px}
-.cal-week-cell:hover{background:var(--sur2)}
-.cal-week-cell.today{background:var(--acl)}
-.cal-week-cell.selected{background:var(--acl);border:1.5px solid var(--ac2)}
-.cal-week-dow{font-size:.62rem;color:var(--tx3);margin-bottom:3px}
-.cal-week-num{font-size:.82rem;font-weight:500;color:var(--tx);width:24px;height:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 3px}
-.cal-week-cell.today .cal-week-num{background:var(--ac);color:#fff;border-radius:50%}
-.cal-appt{background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);padding:.75rem 1rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.85rem;box-shadow:var(--sh);cursor:pointer}
-.cal-appt-time{font-size:.78rem;font-weight:500;color:var(--wn);width:46px;flex-shrink:0;text-align:center}
-.cal-appt-info{flex:1;min-width:0}
-.cal-appt-name{font-weight:500;font-size:.9rem}
-.cal-appt-loc{font-size:.75rem;color:var(--tx3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* empty */
-.empty{text-align:center;padding:3.5rem 2rem;color:var(--tx3)}
-.ei{font-size:2.5rem;margin-bottom:.75rem;opacity:.4}
-.et{font-size:.88rem;line-height:1.7}
-
-/* avatar colors */
-.a0{background:#1B5E3B}.a1{background:#1A6FA8}.a2{background:#6B3FA0}.a3{background:#B8500A}.a4{background:#8D3030}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MA 名單管理</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1B5E3B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MA 名單管理">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- SETUP -->
-<div id="setup">
-  <div class="sl">📋 名單管理</div>
-  <div class="ss">你的美安事業潛在客戶系統</div>
-  <div class="sc">
-    <div class="slb">請輸入你的名字，建立你的專屬系統</div>
-    <input id="oi" class="si2" placeholder="例如：王小明" maxlength="20">
-    <button class="sbtn" onclick="doSetup()">開始使用 →</button>
+  <!-- ============================================================
+       載入中畫面（頁面初始顯示，auth 狀態確認後隱藏）
+       ============================================================ -->
+  <div id="loading-screen">
+    <div class="loading-logo">MA CRM</div>
+    <div class="loading-spinner"></div>
   </div>
-</div>
 
-<!-- APP -->
-<div id="app" style="display:none">
-  <div class="hd">
-    <div class="ht">
-      <div class="htitle"><span class="hname" id="hdn"></span>名單管理系統</div>
-      <div class="hpills">
-        <div class="hp"><b id="st">0</b> 人</div>
-        <div class="hp">今日約 <b id="sf">0</b></div>
+  <!-- ============================================================
+       登入畫面
+       ============================================================ -->
+  <div id="login-screen" style="display:none">
+    <div class="login-inner">
+      <div class="login-logo-area">
+        <div class="login-app-icon">🌿</div>
+        <h1 class="login-title">MA 名單管理</h1>
+        <p class="login-subtitle">你的事業夥伴管理系統</p>
+      </div>
+
+      <div class="login-card">
+        <button id="btn-google-login" class="btn-google">
+          <!-- Google 官方 SVG Logo -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          使用 Google 帳號登入
+        </button>
+        <p class="login-hint">僅限受邀的夥伴使用</p>
       </div>
     </div>
-    <div class="nav">
-      <div class="ntab on" onclick="goTab('list')">名單</div>
-      <div class="ntab" onclick="goTab('cal')">約會行程</div>
-    </div>
   </div>
 
-  <div id="list-tab">
-    <div class="sb">
-      <input id="qi" class="si" placeholder="搜尋姓名、電話…" oninput="rl()">
-      <button class="fab" onclick="openAdd()">＋</button>
-    </div>
-    <div class="fc">
-      <div class="fchip on" onclick="sf(this,'all')">全部</div>
-      <div class="fchip" onclick="sf(this,'cont')">持續跟進</div>
-      <div class="fchip" onclick="sf(this,'stop')">暫停跟進</div>
-      <div class="fchip" onclick="sf(this,'vip')">🛒 優惠顧客</div>
-      <div class="fchip" onclick="sf(this,'signed')">✅ 成功簽約</div>
-    </div>
-    <div id="cv"></div>
-  </div>
-
-  <div id="cal-tab" style="display:none">
-    <!-- Calendar view/week toggle -->
-    <div style="background:var(--sur2);padding:.55rem 1.25rem;display:flex;align-items:center;justify-content:space-between">
-      <button id="cal-prev" onclick="calNav(-1)" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--tx2);padding:.2rem .5rem">‹</button>
-      <div id="cal-label" style="font-size:.9rem;font-weight:500;color:var(--tx)"></div>
-      <button id="cal-next" onclick="calNav(1)" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--tx2);padding:.2rem .5rem">›</button>
-    </div>
-    <div style="background:var(--sur2);padding:0 1.25rem .5rem;display:flex;justify-content:flex-end">
-      <div style="display:flex;background:rgba(0,0,0,.08);border-radius:20px;padding:2px">
-        <button id="vm-month" onclick="setCalView('month')" class="vm-btn vm-on">月</button>
-        <button id="vm-week" onclick="setCalView('week')" class="vm-btn">週</button>
+  <!-- ============================================================
+       未授權畫面
+       ============================================================ -->
+  <div id="rejected-screen" style="display:none">
+    <div class="login-inner">
+      <div class="rejected-card">
+        <div class="rejected-icon">🔒</div>
+        <h2 class="rejected-title">尚未獲得使用權限</h2>
+        <p class="rejected-msg">你的帳號目前不在白名單中，<br>請聯繫邀請你的人取得授權。</p>
+        <p class="rejected-email" id="rejected-email"></p>
+        <button id="btn-logout-rejected" class="btn-outline-white">登出並切換帳號</button>
       </div>
     </div>
-    <div id="cal-grid" style="padding:0 1.25rem .5rem"></div>
-    <div style="border-top:1px solid var(--bd);padding:.75rem 1.25rem .3rem">
-      <div id="cal-day-label" style="font-size:.75rem;font-weight:500;color:var(--tx3);margin-bottom:.45rem"></div>
-    </div>
-    <div id="cal-list" style="padding:0 1.25rem 6rem"></div>
   </div>
-</div>
 
-<!-- Detail Panel -->
-<div id="dp">
-  <div class="ph">
-    <button class="pbk" onclick="closeDP()">‹</button>
-    <div class="pn" id="pnm">—</div>
-    <button class="peb" onclick="openEdit()">編輯資料</button>
-  </div>
-  <div class="db" id="db"></div>
-</div>
-
-<!-- Contact Modal -->
-<div class="mo" id="cm">
-  <div class="mc">
-    <div class="mt" id="cmt">新增潛在客戶</div>
-    <div class="fr2">
-      <div class="fg"><label class="fl">姓名 *</label><input id="fn" class="fi" placeholder="王小明"></div>
-      <div class="fg"><label class="fl">電話</label><input id="fp" class="fi" placeholder="0912-345-678"></div>
-    </div>
-    <div class="fg"><label class="fl">Email</label><input id="fe" class="fi" placeholder="name@email.com"></div>
-    <div class="fg">
-      <label class="fl">跟進狀態</label>
-      <select id="fst" class="fsel" onchange="toggleVipRow()">
-        <option value="cont">持續跟進</option>
-        <option value="stop">暫停跟進</option>
-        <option value="signed">✅ 成功簽約（結案）</option>
-      </select>
-    </div>
-    <div class="fg" id="vip-row">
-      <label class="ck-item" style="padding:.6rem .9rem;background:var(--sur);border:1.5px solid var(--bd);border-radius:var(--rs);cursor:pointer;display:flex;gap:.6rem;align-items:center">
-        <input type="checkbox" id="fvip" style="width:17px;height:17px;accent-color:#B8500A;cursor:pointer;flex-shrink:0">
-        <span style="font-size:.88rem;color:var(--tx)">🛒 優惠顧客（可疊加於跟進狀態）</span>
-      </label>
-    </div>
-    <div class="fg"><label class="fl">初步印象 / 認識管道</label><textarea id="fb" class="fta" placeholder="怎麼認識的、第一印象…"></textarea></div>
-    <div class="ma">
-      <button class="bc" onclick="closeM('cm')">取消</button>
-      <button id="delbtn" class="bs bdng" onclick="delC()" style="display:none">刪除</button>
-      <button class="bs" onclick="saveC()">儲存</button>
-    </div>
-  </div>
-</div>
-
-<!-- FORMHD Modal -->
-<div class="mo" id="fhm">
-  <div class="mc">
-    <div class="mt">FORMHD 資料</div>
-    <div class="fhtabs">
-      <button class="fhtab on" onclick="fhTab(this,'F')">F 家庭</button>
-      <button class="fhtab" onclick="fhTab(this,'O')">O 職業</button>
-      <button class="fhtab" onclick="fhTab(this,'R')">R 休閒</button>
-      <button class="fhtab" onclick="fhTab(this,'M')">M 金錢</button>
-      <button class="fhtab" onclick="fhTab(this,'H')">H 健康</button>
-      <button class="fhtab" onclick="fhTab(this,'D')">D 夢想</button>
-    </div>
-    <div id="fhs-F"><div class="fg"><label class="fl">Family · 家庭狀況（婚姻、孩子、家人…）</label><textarea id="fhi-F" class="fta tall" placeholder="已婚，有兩個孩子，和父母同住…"></textarea></div></div>
-    <div id="fhs-O" style="display:none"><div class="fg"><label class="fl">Occupation · 職業 / 工作狀況</label><textarea id="fhi-O" class="fta tall" placeholder="目前從事什麼工作、收入穩定嗎、對現況滿意嗎…"></textarea></div></div>
-    <div id="fhs-R" style="display:none"><div class="fg"><label class="fl">Recreation · 休閒興趣 / 生活方式</label><textarea id="fhi-R" class="fta tall" placeholder="喜歡健身、旅遊、常使用哪些社群平台…"></textarea></div></div>
-    <div id="fhs-M" style="display:none"><div class="fg"><label class="fl">Money · 金錢觀 / 財務狀況</label><textarea id="fhi-M" class="fta tall" placeholder="對副業有興趣、目前有財務壓力、有投資習慣…"></textarea></div></div>
-    <div id="fhs-H" style="display:none"><div class="fg"><label class="fl">Health · 健康狀況 / 關注議題</label><textarea id="fhi-H" class="fta tall" placeholder="注重保養、有特定健康需求、家人有健康問題…"></textarea></div></div>
-    <div id="fhs-D" style="display:none"><div class="fg"><label class="fl">Dream · 夢想 / 目標 / 渴望</label><textarea id="fhi-D" class="fta tall" placeholder="想財務自由、希望多時間陪家人、想創業…"></textarea></div></div>
-    <div class="ma">
-      <button class="bc" onclick="closeM('fhm')">取消</button>
-      <button class="bs" onclick="saveFH()">儲存 FORMHD</button>
-    </div>
-  </div>
-</div>
-
-<!-- 跟進記錄 Modal -->
-<div class="mo" id="trm">
-  <div class="mc">
-    <div class="mt" id="trmt">新增跟進記錄</div>
-
-    <div class="fr2">
-      <div class="fg">
-        <label class="fl">跟進類型</label>
-        <select id="ttype" class="fsel">
-          <option value="chat">💬 聊天／訊息</option>
-          <option value="call">📞 電話</option>
-          <option value="meet">🤝 見面</option>
-          <option value="social">📱 社群互動</option>
-          <option value="other">📝 其他</option>
-        </select>
+  <!-- ============================================================
+       初次設定畫面（輸入姓名）
+       ============================================================ -->
+  <div id="setup-screen" style="display:none">
+    <div class="setup-inner">
+      <div class="setup-welcome">
+        <div class="setup-emoji">👋</div>
+        <h1 class="setup-title">歡迎加入！</h1>
+        <p class="setup-sub">請輸入你的姓名，開始使用 MA 名單管理</p>
       </div>
-      <div class="fg"><label class="fl">日期</label><input id="tdate" class="fi" type="date"></div>
-    </div>
 
-    <!-- 跟進前 Leader 討論 -->
-    <div class="tr-section-title">跟進前</div>
-    <div class="fg"><label class="fl">跟進前 Leader 討論</label><textarea id="t_pre_leader" class="fta" placeholder="跟進前和 Leader 討論了什麼、得到哪些建議…"></textarea></div>
-
-    <!-- 跟進內容 -->
-    <div class="tr-section-title">跟進中</div>
-    <!-- 本次跟進進度（多選） -->
-    <div class="fg">
-      <label class="fl">本次跟進進度（可多選）</label>
-      <div class="checkgroup" id="progress-group">
-        <label class="ck-item"><input type="checkbox" value="build_rel"> 建立關係</label>
-        <label class="ck-item"><input type="checkbox" value="invite"> 邀約</label>
-        <label class="ck-item"><input type="checkbox" value="show_plan"> 展示計劃</label>
-        <label class="ck-item"><input type="checkbox" value="abc_ubp"> ABC / UBP</label>
-        <label class="ck-item"><input type="checkbox" value="close"> 締結</label>
-        <label class="ck-item"><input type="checkbox" value="other_meeting"> 進入其他會議</label>
+      <div class="setup-card">
+        <label class="setup-label" for="setup-name">你的姓名</label>
+        <input
+          id="setup-name"
+          class="setup-input"
+          type="text"
+          placeholder="例如：陳小明"
+          maxlength="20"
+          autocomplete="name"
+        >
+        <button id="btn-setup-submit" class="btn-submit-green">開始使用 →</button>
       </div>
-      <textarea id="t_other_meeting_note" class="fta" placeholder="會議備註（進入哪個會議、細節…）" style="margin-top:.5rem;display:none"></textarea>
-    </div>
-    <div class="fg"><label class="fl">跟進內容 / 摘要</label><textarea id="tcont" class="fta tall" placeholder="這次聊了什麼、分享了哪些資訊…"></textarea></div>
-    <div class="fg"><label class="fl">對方的反應</label><textarea id="treac" class="fta" placeholder="對方的態度、提出的問題、感興趣的點…"></textarea></div>
-
-    <!-- 下次約會 -->
-    <div class="tr-section-title">下次約會</div>
-    <div class="fg"><label class="fl">日期時間</label><input id="t_next_dt" class="fi" type="datetime-local"></div>
-    <div class="fg"><label class="fl">地點</label><input id="t_next_loc" class="fi" placeholder="咖啡廳名稱、地址或線上…"></div>
-
-    <!-- 跟進後 -->
-    <div class="tr-section-title">跟進後</div>
-    <div class="fg"><label class="fl">預計行動</label><textarea id="t_action" class="fta" placeholder="跟進後打算採取什麼行動…"></textarea></div>
-    <div class="fg"><label class="fl">跟進後 Leader 討論</label><textarea id="t_post_leader" class="fta" placeholder="跟進後和 Leader 回顧了什麼、得到哪些指導…"></textarea></div>
-    <div class="fg"><label class="fl">下次跟進計畫</label><textarea id="tnext" class="fta" placeholder="下一步打算怎麼跟進…"></textarea></div>
-
-    <div class="ma">
-      <button class="bc" onclick="closeM('trm')">取消</button>
-      <button id="trdelbtn" class="bs bdng" onclick="delTREditing()" style="display:none">刪除</button>
-      <button class="bs" onclick="saveTR()">儲存記錄</button>
     </div>
   </div>
-</div>
 
-<!-- Sales Record Modal -->
-<div class="mo" id="slm">
-  <div class="mc">
-    <div class="mt" id="slmt">新增購物記錄</div>
-    <div class="fr2">
-      <div class="fg"><label class="fl">購物日期 *</label><input id="sl_date" class="fi" type="date"></div>
-      <div class="fg"><label class="fl">金額（元）</label><input id="sl_amt" class="fi" type="number" placeholder="0" min="0"></div>
-    </div>
-    <div class="fg"><label class="fl">購買品項 *</label><input id="sl_item" class="fi" placeholder="例：新活力、OPC-3…"></div>
-    <div class="fg"><label class="fl">備註</label><textarea id="sl_note" class="fta" placeholder="首次購買、定期訂購、推薦人介紹…"></textarea></div>
-    <div class="ma">
-      <button class="bc" onclick="closeM('slm')">取消</button>
-      <button id="sl_delbtn" class="bs bdng" onclick="delSale()" style="display:none">刪除</button>
-      <button class="bs" onclick="saveSale()">儲存</button>
-    </div>
-  </div>
-</div>
+  <!-- ============================================================
+       主應用程式（登入且有 profile 後顯示）
+       ============================================================ -->
+  <div id="app" style="display:none">
 
-<script>
-let CS=JSON.parse(localStorage.getItem('ma3_c')||'[]');
-let OW=localStorage.getItem('ma3_owner')||'';
-let CF='all',CID=null,EID=null,FHT='F';
-
-const SL={cont:'持續跟進',stop:'暫停跟進',signed:'✅ 成功簽約'};
-const SC={cont:'s-cont',stop:'s-stop',signed:'s-signed'};
-const AV=['a0','a1','a2','a3','a4'];
-const TL={chat:'💬 聊天',call:'📞 電話',meet:'🤝 見面',social:'📱 社群',other:'📝 其他'};
-const TC={chat:'tt-chat',call:'tt-call',meet:'tt-meet',social:'tt-social',other:'tt-other'};
-const FHN={F:'家庭',O:'職業',R:'休閒',M:'金錢觀',H:'健康',D:'夢想'};
-const FHE={F:'Family',O:'Occupation',R:'Recreation',M:'Money',H:'Health',D:'Dream'};
-const FHC={F:'#C0392B',O:'#1A6FA8',R:'#27AE60',M:'#D4800A',H:'#8E44AD',D:'#E67E22'};
-
-function sav(){localStorage.setItem('ma3_c',JSON.stringify(CS))}
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
-function ini(n){return n?n.slice(0,1):'?'}
-function avc(n){return AV[(n.charCodeAt(0)||0)%AV.length]}
-function today(){return new Date().toISOString().slice(0,10)}
-
-// SETUP
-function doSetup(){
-  const v=document.getElementById('oi').value.trim();
-  if(!v){document.getElementById('oi').focus();return}
-  OW=v;localStorage.setItem('ma3_owner',v);
-  document.getElementById('setup').classList.add('out');
-  startApp();
-  setTimeout(()=>document.getElementById('setup').remove(),600);
-}
-document.getElementById('oi').addEventListener('keydown',e=>{if(e.key==='Enter')doSetup()});
-
-function startApp(){
-  document.getElementById('app').style.display='';
-  document.getElementById('hdn').textContent=OW+' 的';
-  document.getElementById('tdate').value=today();
-  calDate=new Date(); calSelected=today();
-  rl();rst();
-}
-
-window.onload=()=>{
-  if(OW){
-    document.getElementById('setup').classList.add('out');
-    startApp();
-    setTimeout(()=>document.getElementById('setup').remove(),600);
-  }
-};
-
-// STATS
-function rst(){
-  document.getElementById('st').textContent=CS.length;
-  const t=today();
-  document.getElementById('sf').textContent=CS.filter(c=>c.nextAppt&&c.nextAppt.slice(0,10)<=t&&c.status!=='signed').length;
-}
-
-// TABS
-function goTab(t){
-  document.querySelectorAll('.ntab').forEach((el,i)=>el.classList.toggle('on',(i===0&&t==='list')||(i===1&&t==='cal')));
-  document.getElementById('list-tab').style.display=t==='list'?'':'none';
-  document.getElementById('cal-tab').style.display=t==='cal'?'':'none';
-  if(t==='cal')renderCal();
-}
-function sf(el,s){
-  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');CF=s;rl();
-}
-
-// RENDER LIST
-function rl(){
-  const q=document.getElementById('qi').value.toLowerCase();
-  const list=CS.filter(c=>{
-    const m=c.name.toLowerCase().includes(q)||(c.phone||'').includes(q);
-    const statusOk=CF==='all'||(CF==='vip'?c.isVip:c.status===CF);
-    return m&&statusOk;
-  });
-  const el=document.getElementById('cv');
-  if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">🌱</div><div class="et">還沒有名單<br>點右上角 ＋ 新增第一位潛在客戶</div></div>`;return}
-  const t=today();
-  el.innerHTML=list.map(c=>{
-    const ln=c.talks&&c.talks.length?c.talks[c.talks.length-1]:null;
-    const nf=c.nextAppt&&c.nextAppt.slice(0,10)<=t&&c.status!=='signed';
-    const fc=Object.values(c.formhd||{}).filter(v=>v&&v.trim()).length;
-    return`<div class="cc">
-      <div class="cm2" onclick="openDP('${c.id}')">
-        <div class="av ${avc(c.name)}">${ini(c.name)}</div>
-        <div class="ci">
-          <div class="cn">${c.name}${fc?` <span style="font-size:.63rem;background:var(--acl);color:var(--ac);padding:1px 6px;border-radius:8px;font-weight:500">FORMHD ${fc}/6</span>`:''}</div>
-          <div class="cm3">${c.phone||''}${c.phone&&c.email?' · ':''}${c.email||''}</div>
+    <!-- Header -->
+    <header id="app-header">
+      <div class="header-top">
+        <div class="header-title-area">
+          <span class="header-greeting" id="header-greeting">早安</span>
+          <h1 class="header-user-name" id="header-user-name">載入中…</h1>
         </div>
-        <div class="cr">
-          <div style="display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end">
-            ${c.status==='signed'
-              ? `<span class="sb2 s-signed">🎉 成功簽約</span>`
-              : `<span class="sb2 ${SC[c.status]||'s-cont'}">${SL[c.status]||c.status}</span>
-                 ${c.isVip?`<span class="sb2" style="background:#FEF3E0;color:#B8500A">🛒</span>`:''}`
-            }
+        <div class="header-actions">
+          <div class="streak-badge" title="連續達標天數">
+            <span class="streak-fire">🔥</span>
+            <span id="streak-count">0</span>
           </div>
-          <div class="fw ${nf?'':'no'}"></div>
         </div>
       </div>
-      ${ln?`<div class="clast">${TL[ln.type]||''} · ${ln.date} · ${(ln.content||'（無內容）').slice(0,50)}${(ln.content||'').length>50?'…':''}</div>`:''}
-    </div>`;
-  }).join('');
-}
+    </header>
 
-// CALENDAR ENGINE
-let calView='month'; // 'month' | 'week'
-let calDate=new Date(); // current display anchor
-let calSelected=today(); // selected date string YYYY-MM-DD
+    <!-- 主內容（各模組動態渲染到這裡） -->
+    <main id="app-content" role="main">
+    </main>
 
-function setCalView(v){
-  calView=v;
-  document.getElementById('vm-month').classList.toggle('vm-on',v==='month');
-  document.getElementById('vm-week').classList.toggle('vm-on',v==='week');
-  renderCal();
-}
+    <!-- 底部 Tab Bar -->
+    <nav id="tab-bar" role="navigation" aria-label="主要導覽">
+      <button class="tab-item active" data-tab="312" aria-label="每日312">
+        <span class="tab-icon">✅</span>
+        <span class="tab-label">每日312</span>
+      </button>
+      <button class="tab-item" data-tab="prospects" aria-label="首選名單">
+        <span class="tab-icon">⭐</span>
+        <span class="tab-label">首選名單</span>
+      </button>
+      <button class="tab-item" data-tab="pool" aria-label="名單池">
+        <span class="tab-icon">📋</span>
+        <span class="tab-label">名單池</span>
+      </button>
+      <button class="tab-item" data-tab="more" aria-label="更多">
+        <span class="tab-icon">☰</span>
+        <span class="tab-label">更多</span>
+      </button>
+    </nav>
 
-function calNav(dir){
-  if(calView==='month'){
-    calDate=new Date(calDate.getFullYear(),calDate.getMonth()+dir,1);
-  }else{
-    calDate=new Date(calDate.getTime()+dir*7*86400000);
-  }
-  renderCal();
-}
+  </div><!-- /#app -->
 
-function calSelectDay(ds){
-  calSelected=ds;
-  renderCal();
-}
+  <!-- ============================================================
+       全域 Modal 容器（所有模組共用）
+       ============================================================ -->
+  <div id="modal-container" aria-live="polite"></div>
 
-// collect all appointments: {date, time, name, loc, cid}
-function getAppts(){
-  const appts=[];
-  CS.forEach(c=>{
-    if(c.nextAppt){
-      const d=new Date(c.nextAppt);
-      appts.push({
-        ds:c.nextAppt.slice(0,10),
-        time:`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`,
-        name:c.name, loc:(c.talks&&c.talks.length?c.talks[c.talks.length-1].nextLoc:''),
-        cid:c.id
-      });
-    }
-  });
-  return appts;
-}
+  <!-- 詳情面板（滑入式） -->
+  <div id="detail-panel" role="dialog" aria-modal="true"></div>
 
-function renderCal(){
-  const appts=getAppts();
-  const apptMap={};
-  appts.forEach(a=>{ if(!apptMap[a.ds])apptMap[a.ds]=[]; apptMap[a.ds].push(a); });
-  const tod=today();
+  <!-- Toast 通知 -->
+  <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
-  if(calView==='month'){
-    const y=calDate.getFullYear(), m=calDate.getMonth();
-    document.getElementById('cal-label').textContent=`${y} 年 ${m+1} 月`;
-    const first=new Date(y,m,1).getDay();
-    const days=new Date(y,m+1,0).getDate();
-    const dows=['日','一','二','三','四','五','六'];
-    let html=`<div class="cal-grid-month">${dows.map(d=>`<div class="cal-dow">${d}</div>`).join('')}`;
-    // prev month padding
-    const prevDays=new Date(y,m,0).getDate();
-    for(let i=first-1;i>=0;i--){
-      const ds=`${y}-${String(m).padStart(2,'0')}-${String(prevDays-i).padStart(2,'0')}`;
-      html+=`<div class="cal-cell other-month" onclick="calSelectDay('${ds}')"><div class="cal-num">${prevDays-i}</div></div>`;
-    }
-    for(let d=1;d<=days;d++){
-      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const isToday=ds===tod, isSel=ds===calSelected;
-      const dots=(apptMap[ds]||[]).slice(0,3).map(()=>`<div class="cal-dot"></div>`).join('');
-      html+=`<div class="cal-cell${isToday?' today':''}${isSel?' selected':''}" onclick="calSelectDay('${ds}')">
-        <div class="cal-num">${d}</div>
-        ${dots?`<div class="cal-dot-row">${dots}</div>`:''}
-      </div>`;
-    }
-    // fill remaining cells
-    const total=first+days; const rem=(7-total%7)%7;
-    for(let d=1;d<=rem;d++){
-      const ds=`${y}-${String(m+2).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      html+=`<div class="cal-cell other-month" onclick="calSelectDay('${ds}')"><div class="cal-num">${d}</div></div>`;
-    }
-    html+='</div>';
-    document.getElementById('cal-grid').innerHTML=html;
-  } else {
-    // week view: find Monday of calDate's week
-    const dow=calDate.getDay();
-    const monday=new Date(calDate); monday.setDate(calDate.getDate()-(dow===0?6:dow-1));
-    const y=monday.getFullYear(), mo=monday.getMonth()+1;
-    document.getElementById('cal-label').textContent=`${y}/${String(mo).padStart(2,'0')} 第${Math.ceil(monday.getDate()/7)}週`;
-    const dows=['一','二','三','四','五','六','日'];
-    let html=`<div class="cal-week-grid">`;
-    for(let i=0;i<7;i++){
-      const d=new Date(monday); d.setDate(monday.getDate()+i);
-      const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-      const isToday=ds===tod, isSel=ds===calSelected;
-      const cnt=(apptMap[ds]||[]).length;
-      html+=`<div class="cal-week-cell${isToday?' today':''}${isSel?' selected':''}" onclick="calSelectDay('${ds}')">
-        <div class="cal-week-dow">${dows[i]}</div>
-        <div class="cal-week-num">${d.getDate()}</div>
-        ${cnt?`<div style="font-size:.62rem;color:var(--ac);font-weight:500">${cnt}筆</div>`:''}
-      </div>`;
-    }
-    html+='</div>';
-    document.getElementById('cal-grid').innerHTML=html;
-  }
+  <!-- 應用程式進入點 -->
+  <script type="module" src="js/app.js"></script>
 
-  // day list
-  const selAppts=(apptMap[calSelected]||[]).sort((a,b)=>a.time>b.time?1:-1);
-  const isToday2=calSelected===tod;
-  const [sy,sm,sd]=calSelected.split('-');
-  document.getElementById('cal-day-label').textContent=
-    `${sy}/${sm}/${sd}${isToday2?' · 今天':''} · ${selAppts.length?selAppts.length+'個約會':'無約會'}`;
-  document.getElementById('cal-list').innerHTML=selAppts.length
-    ? selAppts.map(a=>`<div class="cal-appt" onclick="openDP('${a.cid}')">
-        <div class="cal-appt-time">${a.time}</div>
-        <div class="cal-appt-info">
-          <div class="cal-appt-name">${a.name}</div>
-          ${a.loc?`<div class="cal-appt-loc">📍 ${a.loc}</div>`:''}
-        </div>
-        <div class="av ${avc(a.name)}" style="width:32px;height:32px;font-size:.75rem">${ini(a.name)}</div>
-      </div>`).join('')
-    : `<div style="text-align:center;padding:1.5rem;color:var(--tx3);font-size:.85rem">這天沒有約會行程</div>`;
-}
-
-// DETAIL
-function openDP(id){
-  CID=id;
-  const c=CS.find(x=>x.id===id);if(!c)return;
-  document.getElementById('pnm').textContent=c.name;
-  renderDB(c);
-  document.getElementById('dp').classList.add('open');
-}
-
-function renderDB(c){
-  const fh=c.formhd||{};
-  const fhCards=Object.keys(FHN).map(k=>`
-    <div class="fhc" onclick="openFHTab('${k}')" style="cursor:pointer">
-      <div class="fhlb" style="color:${FHC[k]}">${k} · ${FHN[k]} <span style="color:var(--tx3);font-size:.6rem;font-weight:400">${FHE[k]}</span> <span style="float:right;font-size:.65rem;color:var(--tx3);font-weight:400">點擊編輯</span></div>
-      <div class="fhv ${fh[k]?'':'emp'}">${fh[k]||'尚未記錄'}</div>
-    </div>`).join('');
-
-  const talks=(c.talks||[]).slice().reverse();
-
-  document.getElementById('db').innerHTML=`
-    <div style="text-align:center;margin-bottom:1.1rem">
-      <div class="av ${avc(c.name)}" style="width:58px;height:58px;font-size:1.35rem;margin:0 auto .6rem">${ini(c.name)}</div>
-      ${c.status==='signed'
-        ? `<div style="background:#FFF8E1;border:1.5px solid #F0C040;border-radius:var(--r);padding:.6rem 1rem;text-align:center;margin-top:.4rem">
-            <div style="font-size:1rem;font-weight:700;color:#B8860B">🎉 成功簽約</div>
-            <div style="font-size:.75rem;color:#A07800;margin-top:2px">已成為美安夥伴</div>
-           </div>`
-        : `<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
-            <span class="sb2 ${SC[c.status]||'s-cont'}" style="font-size:.78rem;padding:4px 14px">${SL[c.status]||c.status}</span>
-            ${c.isVip?`<span class="sb2" style="background:#FEF3E0;color:#B8500A;font-size:.78rem;padding:4px 14px">🛒 優惠顧客</span>`:''}
-           </div>`
-      }
-    </div>
-
-    <div style="background:var(--sur);border-radius:var(--r);border:1px solid var(--bd);padding:.6rem 1rem;margin-bottom:1rem">
-      <div class="irow"><span class="ilb">電話</span><span class="ivl">${c.phone||'—'}</span></div>
-      <div class="irow"><span class="ilb">Email</span><span class="ivl">${c.email||'—'}</span></div>
-      ${c.nextAppt?`<div class="irow"><span class="ilb">下次約會</span><span class="ivl" style="color:var(--wn);font-weight:500">📅 ${fmtDt(c.nextAppt)}</span></div>`:''}
-      ${c.note?`<div class="irow"><span class="ilb">印象</span><span class="ivl" style="font-weight:400;font-size:.84rem">${c.note}</span></div>`:''}
-    </div>
-
-    <div class="sh2">
-      <h3>FORMHD 資料</h3>
-    </div>
-    <div class="fhg">${fhCards}</div>
-
-    <div class="sh2">
-      <h3>跟進記錄（${(c.talks||[]).length} 筆）</h3>
-      <button class="anb" onclick="openTR()">＋ 新增</button>
-    </div>
-    ${talks.length?talks.map((t,ri)=>{
-      const realIdx=c.talks.length-1-ri;
-      const progTags=(t.progress||[]).map(p=>`<span class="tr-ptag">${PROGRESS_LABELS[p]||p}</span>`).join('');
-      const isFirst=ri===0; // most recent = expanded by default
-      const preview=t.content?t.content.slice(0,30)+(t.content.length>30?'…':''):'';
-      return`<div class="tr-block" id="trb-${realIdx}">
-        <div class="tr-block-hd${isFirst?'':' collapsed'}" onclick="toggleTR(${realIdx})">
-          <span class="trt ${TC[t.type]||'tt-other'}">${TL[t.type]||'其他'}</span>
-          <span class="trd">${t.date}</span>
-          ${!isFirst&&preview?`<span style="font-size:.72rem;color:var(--tx3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${preview}</span>`:'<span style="flex:1"></span>'}
-          <button onclick="event.stopPropagation();openTREdit(${realIdx})" style="background:none;border:none;font-size:.72rem;color:var(--ac);cursor:pointer;padding:.1rem .4rem;flex-shrink:0">編輯</button>
-          <span class="tr-chevron${isFirst?' up':''}">▼</span>
-        </div>
-        <div class="tr-block-body${isFirst?'':' hidden'}">
-          ${t.preLeader?`<div class="tr-seg"><div class="tr-sec-hd">跟進前</div><div class="tr-leader-blk"><div class="trsl2">Leader 討論</div><div class="trsv2">${t.preLeader}</div></div></div>`:''}
-          ${t.progress&&t.progress.length?`<div class="tr-seg"><div class="tr-sec-hd">本次進度</div><div class="tr-ptags">${progTags}</div>${t.otherMeetingNote?`<div class="trsl2" style="margin-top:.5rem">備註</div><div class="trsv2">${t.otherMeetingNote}</div>`:''}</div>`:''}
-          <div class="tr-seg"><div class="tr-sec-hd">跟進中</div>
-            ${t.content?`<div class="trsl2">跟進內容</div><div class="trsv2">${t.content}</div>`:''}
-            ${t.reaction?`<div class="trsl2">對方反應</div><div class="trsv2">${t.reaction}</div>`:''}
-          </div>
-          ${(t.nextDt||t.nextLoc)?`<div class="tr-seg"><div class="tr-sec-hd">下次約會</div><div class="tr-appt-blk">${t.nextDt?`<div class="trsl2">時間</div><div class="trsv2">📅 ${fmtDt(t.nextDt)}</div>`:''} ${t.nextLoc?`<div class="trsl2">地點</div><div class="trsv2">📍 ${t.nextLoc}</div>`:''}</div></div>`:''}
-          ${(t.action||t.postLeader||t.nextPlan)?`<div class="tr-seg"><div class="tr-sec-hd">跟進後</div>
-            ${t.action?`<div class="trsl2">預計行動</div><div class="trsv2">${t.action}</div>`:''}
-            ${t.postLeader?`<div class="tr-leader-blk" style="margin-top:.4rem"><div class="trsl2">Leader 討論</div><div class="trsv2">${t.postLeader}</div></div>`:''}
-            ${t.nextPlan?`<div class="trsl2">下次跟進計畫</div><div class="trsv2">${t.nextPlan}</div>`:''}
-          </div>`:''}
-        </div>
-      </div>`;
-    }).join(''):
-    `<div style="text-align:center;padding:1.5rem;color:var(--tx3);font-size:.85rem">還沒有跟進記錄<br>點右上角「＋ 新增」開始記錄</div>`}
-
-    ${c.isVip?`
-    <div class="sh2" style="margin-top:1.5rem">
-      <h3>🛒 購物記錄（${(c.sales||[]).length} 筆）</h3>
-      <button class="anb" onclick="openSaleAdd()">＋ 新增</button>
-    </div>
-    ${(c.sales&&c.sales.length)?`
-      <div class="sale-total">
-        <span class="sale-total-label">累計消費金額</span>
-        <span class="sale-total-val">NT$ ${(c.sales.reduce((s,r)=>s+(r.amt||0),0)).toLocaleString()}</span>
-      </div>
-      ${c.sales.map((s,i)=>`
-        <div class="sale-card" onclick="openSaleEdit(${i})">
-          <div class="sale-icon">🛍️</div>
-          <div class="sale-info">
-            <div class="sale-item">${s.item}</div>
-            <div class="sale-meta">${s.date}${s.note?' · '+s.note:''}</div>
-          </div>
-          <div class="sale-amt">NT$ ${(s.amt||0).toLocaleString()}</div>
-        </div>`).join('')}
-    `:`<div style="text-align:center;padding:1.5rem;color:var(--tx3);font-size:.85rem">還沒有購物記錄<br>點右上角「＋ 新增」新增第一筆</div>`}
-    `:''}
-  `;
-}
-
-function closeDP(){
-  document.getElementById('dp').classList.remove('open');
-  CID=null;rl();rst();
-}
-
-// ADD / EDIT CONTACT
-function toggleVipRow(){
-  const s=document.getElementById('fst').value;
-  document.getElementById('vip-row').style.display=s==='signed'?'none':'';
-  if(s==='signed') document.getElementById('fvip').checked=false;
-}
-
-function openAdd(){
-  EID=null;
-  document.getElementById('cmt').textContent='新增潛在客戶';
-  document.getElementById('delbtn').style.display='none';
-  ['fn','fp','fe','fb'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('fst').value='cont';
-  document.getElementById('fvip').checked=false;
-  document.getElementById('vip-row').style.display='';
-  openM('cm');
-}
-
-function openEdit(){
-  const c=CS.find(x=>x.id===CID);if(!c)return;
-  EID=c.id;
-  document.getElementById('cmt').textContent='編輯資料';
-  document.getElementById('delbtn').style.display='';
-  document.getElementById('fn').value=c.name;
-  document.getElementById('fp').value=c.phone||'';
-  document.getElementById('fe').value=c.email||'';
-  document.getElementById('fst').value=c.status;
-  document.getElementById('fvip').checked=!!c.isVip;
-  document.getElementById('fb').value=c.note||'';
-  document.getElementById('vip-row').style.display=c.status==='signed'?'none':'';
-  openM('cm');
-}
-
-function saveC(){
-  const name=document.getElementById('fn').value.trim();
-  if(!name){document.getElementById('fn').focus();return}
-  const status=document.getElementById('fst').value;
-  const isVip=status==='signed'?false:document.getElementById('fvip').checked;
-  const d={name,phone:document.getElementById('fp').value.trim(),email:document.getElementById('fe').value.trim(),status,isVip,note:document.getElementById('fb').value.trim()};
-  if(EID){
-    const i=CS.findIndex(x=>x.id===EID);
-    if(i>-1)CS[i]={...CS[i],...d};
-  }else{
-    CS.unshift({id:uid(),formhd:{},talks:[],sales:[],createdAt:new Date().toISOString(),...d});
-  }
-  sav();closeM('cm');rl();rst();
-  if(EID&&CID===EID){const c=CS.find(x=>x.id===EID);document.getElementById('pnm').textContent=c.name;renderDB(c)}
-}
-
-function delC(){
-  if(!EID)return;
-  const c=CS.find(x=>x.id===EID);
-  if(!confirm(`確定要刪除「${c?.name}」的所有資料？`))return;
-  CS=CS.filter(x=>x.id!==EID);sav();closeM('cm');
-  document.getElementById('dp').classList.remove('open');
-  CID=null;rl();rst();
-}
-
-// FORMHD
-function openFH(){
-  const c=CS.find(x=>x.id===CID);if(!c)return;
-  const fh=c.formhd||{};
-  ['F','O','R','M','H','D'].forEach(k=>document.getElementById('fhi-'+k).value=fh[k]||'');
-  fhTab(document.querySelector('.fhtab'),FHT);
-  openM('fhm');
-}
-
-function openFHTab(k){
-  const c=CS.find(x=>x.id===CID);if(!c)return;
-  const fh=c.formhd||{};
-  ['F','O','R','M','H','D'].forEach(x=>document.getElementById('fhi-'+x).value=fh[x]||'');
-  const tabEl=document.querySelector(`.fhtab[onclick="fhTab(this,'${k}')"]`);
-  fhTab(tabEl,k);
-  openM('fhm');
-}
-
-function fhTab(el,k){
-  FHT=k;
-  document.querySelectorAll('.fhtab').forEach(t=>t.classList.remove('on'));
-  el.classList.add('on');
-  ['F','O','R','M','H','D'].forEach(x=>document.getElementById('fhs-'+x).style.display=x===k?'':'none');
-}
-
-function saveFH(){
-  const c=CS.find(x=>x.id===CID);if(!c)return;
-  if(!c.formhd)c.formhd={};
-  ['F','O','R','M','H','D'].forEach(k=>c.formhd[k]=document.getElementById('fhi-'+k).value.trim());
-  sav();closeM('fhm');renderDB(c);
-}
-
-// 跟進記錄
-const PROGRESS_LABELS={build_rel:'建立關係',invite:'邀約',show_plan:'展示計劃',abc_ubp:'ABC / UBP',close:'締結',other_meeting:'進入其他會議'};
-let ETI=null; // editing talk index
-
-function openTR(){
-  ETI=null;
-  document.getElementById('trmt').textContent='新增跟進記錄';
-  document.getElementById('trdelbtn').style.display='none';
-  ['tcont','treac','tnext','t_pre_leader','t_post_leader','t_action','t_other_meeting_note','t_next_loc'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('ttype').value='chat';
-  document.getElementById('tdate').value=today();
-  document.getElementById('t_next_dt').value='';
-  document.getElementById('t_other_meeting_note').style.display='none';
-  document.querySelectorAll('#progress-group input[type=checkbox]').forEach(cb=>cb.checked=false);
-  const otherCb=document.querySelector('#progress-group input[value=other_meeting]');
-  otherCb.onchange=()=>{document.getElementById('t_other_meeting_note').style.display=otherCb.checked?'':'none'};
-  openM('trm');
-}
-
-function openTREdit(idx){
-  const c=CS.find(x=>x.id===CID);if(!c||!c.talks)return;
-  const t=c.talks[idx];
-  ETI=idx;
-  document.getElementById('trmt').textContent='編輯跟進記錄';
-  document.getElementById('trdelbtn').style.display='';
-  document.getElementById('ttype').value=t.type||'chat';
-  document.getElementById('tdate').value=t.date||today();
-  document.getElementById('t_pre_leader').value=t.preLeader||'';
-  document.getElementById('tcont').value=t.content||'';
-  document.getElementById('treac').value=t.reaction||'';
-  document.getElementById('t_next_dt').value=t.nextDt||'';
-  document.getElementById('t_next_loc').value=t.nextLoc||'';
-  document.getElementById('t_action').value=t.action||'';
-  document.getElementById('t_post_leader').value=t.postLeader||'';
-  document.getElementById('tnext').value=t.nextPlan||'';
-  document.getElementById('t_other_meeting_note').value=t.otherMeetingNote||'';
-  document.querySelectorAll('#progress-group input[type=checkbox]').forEach(cb=>{cb.checked=(t.progress||[]).includes(cb.value)});
-  const hasMeeting=(t.progress||[]).includes('other_meeting');
-  document.getElementById('t_other_meeting_note').style.display=hasMeeting?'':'none';
-  const otherCb=document.querySelector('#progress-group input[value=other_meeting]');
-  otherCb.onchange=()=>{document.getElementById('t_other_meeting_note').style.display=otherCb.checked?'':'none'};
-  openM('trm');
-}
-
-// 修改：移除必填驗證，所有欄位皆為選填
-function saveTR(){
-  const c=CS.find(x=>x.id===CID);if(!c)return;
-  if(!c.talks)c.talks=[];
-  const progress=Array.from(document.querySelectorAll('#progress-group input[type=checkbox]')).filter(cb=>cb.checked).map(cb=>cb.value);
-  const rec={
-    type:document.getElementById('ttype').value,
-    date:document.getElementById('tdate').value,
-    preLeader:document.getElementById('t_pre_leader').value.trim(),
-    progress,
-    otherMeetingNote:document.getElementById('t_other_meeting_note').value.trim(),
-    content:document.getElementById('tcont').value.trim(),
-    reaction:document.getElementById('treac').value.trim(),
-    nextDt:document.getElementById('t_next_dt').value,
-    nextLoc:document.getElementById('t_next_loc').value.trim(),
-    action:document.getElementById('t_action').value.trim(),
-    postLeader:document.getElementById('t_post_leader').value.trim(),
-    nextPlan:document.getElementById('tnext').value.trim()
-  };
-  if(ETI!==null){c.talks[ETI]=rec}else{c.talks.push(rec)}
-  if(rec.nextDt) c.nextAppt=rec.nextDt;
-  sav();closeM('trm');renderDB(c);rst();
-}
-
-function delTR(idx){
-  const c=CS.find(x=>x.id===CID);if(!c||!c.talks)return;
-  if(!confirm('確定刪除這筆跟進記錄？'))return;
-  c.talks.splice(idx,1);sav();renderDB(c);
-}
-
-function toggleTR(idx){
-  const block=document.getElementById('trb-'+idx);if(!block)return;
-  const hd=block.querySelector('.tr-block-hd');
-  const body=block.querySelector('.tr-block-body');
-  const chev=block.querySelector('.tr-chevron');
-  const isOpen=!body.classList.contains('hidden');
-  body.classList.toggle('hidden',isOpen);
-  hd.classList.toggle('collapsed',isOpen);
-  chev.classList.toggle('up',!isOpen);
-}
-
-function delTREditing(){
-  if(ETI===null)return;
-  const c=CS.find(x=>x.id===CID);if(!c||!c.talks)return;
-  if(!confirm('確定刪除這筆跟進記錄？'))return;
-  c.talks.splice(ETI,1);ETI=null;
-  sav();closeM('trm');renderDB(c);
-}
-
-function fmtDt(dt){
-  if(!dt)return'';
-  const d=new Date(dt);
-  return`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
-
-// SALES RECORDS
-let ESI=null; // editing sale index
-
-function openSaleAdd(){
-  ESI=null;
-  document.getElementById('slmt').textContent='新增購物記錄';
-  document.getElementById('sl_delbtn').style.display='none';
-  ['sl_item','sl_note'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('sl_date').value=today();
-  document.getElementById('sl_amt').value='';
-  openM('slm');
-}
-
-function openSaleEdit(idx){
-  const c=CS.find(x=>x.id===CID);if(!c||!c.sales)return;
-  const s=c.sales[idx];
-  ESI=idx;
-  document.getElementById('slmt').textContent='編輯購物記錄';
-  document.getElementById('sl_delbtn').style.display='';
-  document.getElementById('sl_date').value=s.date;
-  document.getElementById('sl_amt').value=s.amt||'';
-  document.getElementById('sl_item').value=s.item;
-  document.getElementById('sl_note').value=s.note||'';
-  openM('slm');
-}
-
-function saveSale(){
-  const item=document.getElementById('sl_item').value.trim();
-  if(!item){document.getElementById('sl_item').focus();return}
-  const c=CS.find(x=>x.id===CID);if(!c)return;
-  if(!c.sales)c.sales=[];
-  const rec={date:document.getElementById('sl_date').value,item,amt:parseFloat(document.getElementById('sl_amt').value)||0,note:document.getElementById('sl_note').value.trim()};
-  if(ESI!==null){c.sales[ESI]=rec}else{c.sales.push(rec)}
-  c.sales.sort((a,b)=>b.date>a.date?1:-1);
-  sav();closeM('slm');renderDB(c);
-}
-
-function delSale(){
-  if(ESI===null)return;
-  const c=CS.find(x=>x.id===CID);if(!c||!c.sales)return;
-  if(!confirm('確定刪除這筆購物記錄？'))return;
-  c.sales.splice(ESI,1);ESI=null;
-  sav();closeM('slm');renderDB(c);
-}
-
-// MODAL HELPERS
-function openM(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden'}
-function closeM(id){document.getElementById(id).classList.remove('open');document.body.style.overflow=''}
-document.querySelectorAll('.mo').forEach(el=>{el.addEventListener('click',e=>{if(e.target===el)closeM(el.id)})});
-</script>
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js')
-      .then(r=>console.log('SW registered'))
-      .catch(e=>console.log('SW error',e));
-  });
-}
-</script>
 </body>
 </html>

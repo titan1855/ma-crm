@@ -1,12 +1,12 @@
 {
-  "name": "我的名單管理系統",
-  "short_name": "名單管理",
-  "description": "美安事業潛在客戶管理系統",
+  "name": "MA 名單管理",
+  "short_name": "MA CRM",
+  "description": "美安事業夥伴名單管理系統",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0072CE",
-  "theme_color": "#0072CE",
+  "background_color": "#1B5E3B",
+  "theme_color": "#1B5E3B",
   "lang": "zh-TW",
   "icons": [
     {
