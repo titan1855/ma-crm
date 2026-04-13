@@ -45,15 +45,10 @@ export function userDoc(...pathSegments) {
   return doc(db, 'users', user.uid, ...pathSegments);
 }
 
-/** 讀取使用者 profile */
+/** 讀取使用者 profile（找不到文件返回 null；真正的錯誤往上拋） */
 export async function getProfile() {
-  try {
-    const snap = await getDoc(userDoc('profile'));
-    return snap.exists() ? snap.data() : null;
-  } catch (err) {
-    console.error('getProfile error:', err);
-    return null;
-  }
+  const snap = await getDoc(userDoc('profile'));
+  return snap.exists() ? snap.data() : null;
 }
 
 /** 寫入 / 合併更新 profile */

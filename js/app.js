@@ -73,7 +73,9 @@ function initSetupScreen() {
       enterApp();
     } catch (err) {
       console.error('setProfile error:', err);
-      toast('儲存失敗，請重試', 'error');
+      // 顯示實際錯誤碼，方便診斷
+      const msg = err.code ? `儲存失敗（${err.code}）` : `儲存失敗：${err.message}`;
+      toast(msg, 'error');
       btn.disabled = false;
       btn.textContent = '開始使用';
     }
@@ -238,7 +240,17 @@ async function init() {
     state.isAdmin = allowed.role === 'admin';
 
     // 讀取 profile
-    const profile = await getProfile();
+    let profile;
+    try {
+      profile = await getProfile();
+    } catch (err) {
+      console.error('getProfile error:', err);
+      // 如果是找不到文件以外的錯誤（例如權限問題），顯示錯誤訊息
+      toast(`讀取資料失敗（${err.code || err.message}），請重新整理`, 'error');
+      showScreen('login-screen');
+      return;
+    }
+
     if (!profile) {
       showScreen('setup-screen');
       return;
