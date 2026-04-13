@@ -10,13 +10,27 @@
  * @param {string} message
  * @param {'info'|'success'|'warning'|'error'} type
  */
-export function toast(message, type = 'info') {
+/**
+ * 顯示 Toast 訊息
+ * @param {string} message
+ * @param {'info'|'success'|'warning'|'error'} type
+ * @param {number} [duration] 顯示毫秒數，error 預設 8000，其他 3000
+ */
+export function toast(message, type = 'info', duration) {
   const container = document.getElementById('toast-container');
   if (!container) return;
+
+  // error 類型預設停留 8 秒，讓使用者有時間讀取
+  const ms = duration ?? (type === 'error' ? 8000 : 3000);
 
   const el = document.createElement('div');
   el.className = `toast toast-${type}`;
   el.textContent = message;
+  // 點擊可提前關閉
+  el.addEventListener('click', () => {
+    el.classList.remove('show');
+    el.addEventListener('transitionend', () => el.remove(), { once: true });
+  });
   container.appendChild(el);
 
   requestAnimationFrame(() => {
@@ -26,7 +40,7 @@ export function toast(message, type = 'info') {
   setTimeout(() => {
     el.classList.remove('show');
     el.addEventListener('transitionend', () => el.remove(), { once: true });
-  }, 2800);
+  }, ms);
 }
 
 // ---- 日期工具 ----

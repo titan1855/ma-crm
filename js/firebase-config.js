@@ -2,8 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   getFirestore,
-  initializeFirestore,
-  persistentLocalCache
+  enableIndexedDbPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -19,12 +18,16 @@ const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 
-// 嘗試啟用 IndexedDB 離線持久化，失敗時 fallback 到記憶體模式（無痕視窗等）
-let db;
-try {
-  db = initializeFirestore(app, { localCache: persistentLocalCache() });
-} catch (e) {
-  console.warn('[Firebase] 離線快取初始化失敗，改用記憶體模式:', e.message);
-  db = getFirestore(app);
-}
-export { db };
+// 先取得標準 db（記憶體模式，一定成功）
+export const db = getFirestore(app);
+
+// 然後嘗試升級為 IndexedDB 離線持久化（失敗不影響 db 正常使用）
+enableIndexedDbPersistence(db).catch(err => {
+  if (err.code === 'failed-precondition') {
+    console.warn('[Firestore] 多個分頁同時開啟，離線持久化停用');
+  } else if (err.code === 'unimplemented') {
+    console.warn('[Firestore] 此瀏覽器不支援離線持久化（無痕模式）');
+  } else {
+    console.warn('[Firestore] 離線持久化初始化失敗:', err.message);
+  }
+});
