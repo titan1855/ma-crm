@@ -10,11 +10,7 @@ import { auth, db } from './firebase-config.js';
 const provider = new GoogleAuthProvider();
 let _isAdmin = false;
 
-/**
- * 偵測是否為 PWA standalone 模式
- * iOS Safari → navigator.standalone === true
- * Android Chrome PWA → matchMedia('display-mode: standalone')
- */
+/** 偵測是否為 PWA standalone 模式（iOS / Android） */
 export function isStandaloneMode() {
   return (
     window.navigator.standalone === true ||
@@ -22,7 +18,7 @@ export function isStandaloneMode() {
   );
 }
 
-/** Google 登入（signInWithPopup） */
+/** 觸發 Google 登入（signInWithPopup） */
 export function login() {
   return signInWithPopup(auth, provider);
 }

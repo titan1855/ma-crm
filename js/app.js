@@ -105,13 +105,20 @@ function bindAuthButtons() {
     btn.disabled = true;
 
     if (isStandaloneMode()) {
-      // iOS PWA standalone：signInWithPopup 無法在 standalone 模式正常運作。
-      // 改為開啟普通 Safari 分頁讓使用者在那裡登入，
-      // Firebase 會將 auth token 存入 localStorage（同源共用），
-      // 使用者回到 App 後 visibilitychange 偵測到並自動重載，
-      // onAuthStateChanged 即可取得已登入的 user。
+      // iOS PWA standalone 模式：signInWithPopup 內部用 window.open()，
+      // 但 window.open() 在 standalone 模式會被 iOS 忽略（畫面閃一下沒反應）。
+      // 正確做法：建立 <a target="_blank"> 並 .click()，
+      // iOS 會把 target="_blank" 的連結開在 Safari（普通瀏覽器），
+      // 使用者在 Safari 完成 Google 登入後，Firebase token 存入共用 localStorage，
+      // 回到 App 時 visibilitychange 自動 reload，onAuthStateChanged 即取得 user。
       const loginUrl = window.location.origin + window.location.pathname + '?pwa_auth=1';
-      window.open(loginUrl, '_blank');
+      const a = document.createElement('a');
+      a.href = loginUrl;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       toast('已開啟 Safari 登入頁，完成 Google 登入後回到此 App 即可', 'info');
       btn.disabled = false;
       return;
