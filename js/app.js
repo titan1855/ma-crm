@@ -2,7 +2,7 @@
  * app.js — 應用進入點
  * 初始化 Firebase Auth、路由、全域狀態
  */
-import { onUserReady, login, logout, checkAllowList, isStandaloneMode } from './auth.js';
+import { onUserReady, login, logout, checkAllowList, isStandaloneMode, handleRedirectResult } from './auth.js';
 import { getProfile, setProfile, serverTimestamp, setCurrentUid, getDocs, userCollection, addAllowedUser, getAllowedUsers, removeAllowedUser } from './db.js';
 import { initRouter, registerTab, navigate } from './router.js';
 import { initMigration } from './migration.js';
@@ -106,10 +106,12 @@ function bindAuthButtons() {
 
     try {
       await login();
-      // onUserReady 會接手後續流程
+      // signInWithPopup：onUserReady 接手
+      // signInWithRedirect：頁面直接導走，不會 resolve
     } catch (err) {
       if (err.code !== 'auth/popup-closed-by-user') {
-        toast('登入失敗，請重試', 'error');
+        const msg = err.code ? `登入失敗（${err.code}）` : '登入失敗，請重試';
+        toast(msg, 'error');
       }
       btn.disabled = false;
     }
@@ -123,29 +125,6 @@ function bindAuthButtons() {
     await logout();
     location.reload();
   });
-}
-
-// ==============================
-// iOS PWA 登入輔助
-// ==============================
-
-/**
- * standalone 模式下，將 Google 登入按鈕替換為真正的 <a target="_blank">。
- * iOS 只有使用者手指直接觸碰 <a> 元素才會開 Safari；
- * window.open() 與合成 a.click() 都會被系統攔截。
- */
-function _setupStandaloneLoginLink() {
-  const btn = document.getElementById('btn-google-login');
-  if (!btn) return;
-  const url = window.location.origin + window.location.pathname + '?pwa_auth=1';
-  const a = document.createElement('a');
-  a.href = url;
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
-  a.className = btn.className;
-  a.innerHTML = btn.innerHTML;
-  a.style.display = 'flex';   // btn-google 原本是 display:flex
-  btn.replaceWith(a);
 }
 
 // ==============================
@@ -558,44 +537,22 @@ async function init() {
   bindAuthButtons();
   initSetupScreen();
 
-  // iOS PWA：使用者在 Safari 完成登入後回到 App 時，
-  // 自動重載以讓 onAuthStateChanged 拿到最新 auth 狀態
-  if (isStandaloneMode()) {
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && !state.user) {
-        location.reload();
-      }
-    });
+  // 處理 signInWithRedirect 回來的結果
+  // （每次 App 初始化都要呼叫；若不是從 redirect 回來則直接 resolve null）
+  try {
+    await handleRedirectResult();
+  } catch (err) {
+    console.error('[auth] redirect error:', err);
+    const code = err.code ?? '';
+    if (code && code !== 'auth/cancelled-popup-request') {
+      // 等 login 畫面顯示後再 toast，方便使用者看到錯誤碼
+      setTimeout(() => toast(`登入失敗（${code}）`, 'error'), 600);
+    }
   }
 
-  // 若是從 PWA 開啟的 Safari 登入輔助頁（?pwa_auth=1），
-  // 登入成功後顯示「請關閉此頁回到 App」畫面
-  const isPwaAuthTab = new URLSearchParams(window.location.search).has('pwa_auth');
-
   onUserReady(async (user) => {
-    // 若是 Safari 登入輔助頁且已登入，顯示完成畫面
-    if (isPwaAuthTab && user) {
-      document.body.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                    min-height:100dvh;padding:2rem;text-align:center;background:var(--bg)">
-          <div style="font-size:3.5rem;margin-bottom:1rem">✅</div>
-          <h2 style="font-size:1.15rem;font-weight:700;margin-bottom:.5rem">登入成功！</h2>
-          <p style="color:var(--tx3);font-size:.9rem;line-height:1.6;margin-bottom:1.75rem">
-            請關閉此分頁，<br>回到 MA ENGINE App 即可繼續
-          </p>
-          <button class="btn btn-primary" onclick="window.close()"
-            style="padding:.85rem 2.5rem;font-size:.95rem">關閉此分頁</button>
-        </div>
-      `;
-      return;
-    }
-
     if (!user) {
       showScreen('login-screen');
-      // iOS PWA standalone：把按鈕換成真正的 <a> 元素
-      // （iOS 只有使用者手指直接點到 <a> 才會開 Safari，
-      //   透過 JS 合成 click 或 window.open 都會被擋住）
-      if (isStandaloneMode()) _setupStandaloneLoginLink();
       return;
     }
 
