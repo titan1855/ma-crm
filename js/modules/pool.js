@@ -9,6 +9,7 @@ import {
   query, orderBy, serverTimestamp
 } from '../db.js';
 import { toast, avatarColor, avatarInitial, emptyState, debounce } from '../utils.js';
+import { recordPoolAdded } from './daily312.js';
 
 let _unsubscribe = null;
 let _allItems = [];
@@ -191,6 +192,11 @@ function _buildCard(item) {
 
 // ── 新增名單 Modal ─────────────────────────────────────────
 
+/** 供外部（daily312 快速新增按鈕）使用 */
+export function openAddModal() {
+  _openAddModal();
+}
+
 function _openAddModal() {
   const el = _createModal(`
     <div class="modal-title">新增名單</div>
@@ -230,13 +236,15 @@ function _openAddModal() {
     saveBtn.textContent = '儲存中…';
 
     try {
-      await addDoc(userCollection('pool'), {
+      const docRef = await addDoc(userCollection('pool'), {
         name,
         howMet:     el.querySelector('#pool-add-howmet').value.trim(),
         impression: el.querySelector('#pool-add-impression').value.trim(),
         status:     'pending',
         createdAt:  serverTimestamp(),
       });
+      // 計入今日 312 poolCount（靜默失敗不影響主流程）
+      recordPoolAdded(docRef.id, name).catch(() => {});
       toast(`已新增 ${name}`, 'success');
       _closeModal(el);
     } catch (err) {

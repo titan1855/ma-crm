@@ -827,7 +827,12 @@ function _showStepTip(tip) {
 //  會面記錄 Modal
 // ═══════════════════════════════════════════════════════════
 
-function _openTalkModal(p) {
+/** 供 daily312 使用的公開入口 */
+export function openTalkModal(prospect, onAfterSave = null) {
+  _openTalkModal(prospect, onAfterSave);
+}
+
+function _openTalkModal(p, onAfterSave = null) {
   const typeOpts = Object.entries(TALK_TYPE_LABELS).map(([v, l]) =>
     `<option value="${v}">${l}</option>`
   ).join('');
@@ -901,6 +906,7 @@ function _openTalkModal(p) {
   _bindCancel(el);
 
   el.querySelector('.prs-save').onclick = async () => {
+    const typeVal = el.querySelector('#talk-type').value; // 在關閉前先取得
     const btn = el.querySelector('.prs-save');
     btn.disabled = true; btn.textContent = '儲存中…';
 
@@ -928,6 +934,7 @@ function _openTalkModal(p) {
       // 更新最後聯繫時間
       await updateDoc(userSubDoc('prospects', p.id), { lastContactAt: serverTimestamp() });
       _closeModal(el);
+      if (onAfterSave) onAfterSave({ type: typeVal, prospectId: p.id });
       _openEmotionModal(talkRef.id, p.id);
     } catch (err) {
       console.error('[talk] addDoc error', err);

@@ -9,6 +9,7 @@ import { initMigration } from './migration.js';
 import { toast, getGreeting } from './utils.js';
 import { init as initPool }      from './modules/pool.js';
 import { init as initProspects } from './modules/prospects.js';
+import { init as initDaily312, setCurrentProfile } from './modules/daily312.js';
 
 // ---- 全域狀態（其他模組可 import state） ----
 export const state = {
@@ -210,6 +211,8 @@ function enterApp() {
   updateHeader();
   initPool();
   initProspects();
+  initDaily312();
+  setCurrentProfile(state.profile);
   registerMoreTab();
   initRouter();
   initMigration();

@@ -1190,4 +1190,181 @@ a { color: inherit; text-decoration: none; }
   margin-top: 1.25rem;
 }
 
+/* ================================================================
+   模組四：每日 312 打卡
+   ================================================================ */
+
+.m312-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 日期 + 連續天數 row */
+.m312-date-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.m312-date-text {
+  font-size: .9rem;
+  color: var(--tx2);
+  font-weight: 500;
+}
+
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  background: var(--acl);
+  border-radius: 999px;
+  padding: .2rem .65rem;
+  font-size: .82rem;
+  color: var(--ac);
+  font-weight: 600;
+}
+
+.streak-fire { font-size: 1rem; }
+
+.m312-streak-val {
+  font-weight: 700;
+  font-size: .9rem;
+}
+
+/* 進度卡 */
+.m312-progress-card {
+  background: var(--sur);
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  padding: .9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+
+.m312-goal-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.m312-goal-row.done .m312-goal-count {
+  color: var(--ac2);
+  font-weight: 600;
+}
+
+.m312-goal-icon  { font-size: 1.1rem; width: 1.5rem; text-align: center; }
+.m312-goal-label { font-size: .85rem; color: var(--tx2); min-width: 2.4rem; }
+
+.m312-dots {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+}
+
+.m312-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--sur2);
+  border: 2px solid var(--bd);
+  transition: background .2s, border-color .2s;
+}
+
+.m312-dot.done {
+  background: var(--ac2);
+  border-color: var(--ac2);
+}
+
+.m312-goal-count {
+  font-size: .8rem;
+  color: var(--tx3);
+  min-width: 2.8rem;
+  text-align: right;
+}
+
+/* 達標 banner */
+.m312-completed-banner {
+  margin-top: .35rem;
+  background: var(--acl);
+  color: var(--ac);
+  font-weight: 600;
+  font-size: .9rem;
+  text-align: center;
+  border-radius: var(--rs);
+  padding: .45rem .5rem;
+}
+
+/* 區塊標題 */
+.m312-section-title {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--tx3);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: .25rem;
+}
+
+/* 建議卡 */
+.m312-suggestion-card { margin: 0; }
+
+.m312-empty-suggestions {
+  font-size: .85rem;
+  color: var(--tx3);
+  text-align: center;
+  padding: .75rem 0;
+  line-height: 1.6;
+}
+
+.m312-loading {
+  font-size: .85rem;
+  color: var(--tx3);
+  text-align: center;
+  padding: .75rem 0;
+}
+
+/* 底部快速按鈕列 */
+.m312-bottom-btns {
+  display: flex;
+  gap: .6rem;
+  padding-bottom: .5rem;
+}
+
+/* Modal 按鈕列 */
+.m312-modal-actions {
+  display: flex;
+  gap: .75rem;
+  margin-top: 1.25rem;
+}
+
+/* Goal bounce animation */
+@keyframes m312-bounce {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.07); }
+  70%  { transform: scale(.97); }
+  100% { transform: scale(1); }
+}
+
+.m312-goal-bounce {
+  animation: m312-bounce .55s ease;
+}
+
+/* Confetti */
+@keyframes m312-fall {
+  0%   { transform: translateY(-10px) rotate(0deg);   opacity: 1; }
+  100% { transform: translateY(100vh)  rotate(540deg); opacity: 0; }
+}
+
+.m312-confetti {
+  position: fixed;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: m312-fall 2.8s ease-in forwards;
+}
+
 .prs-modal-actions .btn { flex: 1; padding: .8rem; }
