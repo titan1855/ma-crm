@@ -104,26 +104,6 @@ function bindAuthButtons() {
     const btn = document.getElementById('btn-google-login');
     btn.disabled = true;
 
-    if (isStandaloneMode()) {
-      // iOS PWA standalone 模式：signInWithPopup 內部用 window.open()，
-      // 但 window.open() 在 standalone 模式會被 iOS 忽略（畫面閃一下沒反應）。
-      // 正確做法：建立 <a target="_blank"> 並 .click()，
-      // iOS 會把 target="_blank" 的連結開在 Safari（普通瀏覽器），
-      // 使用者在 Safari 完成 Google 登入後，Firebase token 存入共用 localStorage，
-      // 回到 App 時 visibilitychange 自動 reload，onAuthStateChanged 即取得 user。
-      const loginUrl = window.location.origin + window.location.pathname + '?pwa_auth=1';
-      const a = document.createElement('a');
-      a.href = loginUrl;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      toast('已開啟 Safari 登入頁，完成 Google 登入後回到此 App 即可', 'info');
-      btn.disabled = false;
-      return;
-    }
-
     try {
       await login();
       // onUserReady 會接手後續流程
@@ -143,6 +123,29 @@ function bindAuthButtons() {
     await logout();
     location.reload();
   });
+}
+
+// ==============================
+// iOS PWA 登入輔助
+// ==============================
+
+/**
+ * standalone 模式下，將 Google 登入按鈕替換為真正的 <a target="_blank">。
+ * iOS 只有使用者手指直接觸碰 <a> 元素才會開 Safari；
+ * window.open() 與合成 a.click() 都會被系統攔截。
+ */
+function _setupStandaloneLoginLink() {
+  const btn = document.getElementById('btn-google-login');
+  if (!btn) return;
+  const url = window.location.origin + window.location.pathname + '?pwa_auth=1';
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  a.className = btn.className;
+  a.innerHTML = btn.innerHTML;
+  a.style.display = 'flex';   // btn-google 原本是 display:flex
+  btn.replaceWith(a);
 }
 
 // ==============================
@@ -589,6 +592,10 @@ async function init() {
 
     if (!user) {
       showScreen('login-screen');
+      // iOS PWA standalone：把按鈕換成真正的 <a> 元素
+      // （iOS 只有使用者手指直接點到 <a> 才會開 Safari，
+      //   透過 JS 合成 click 或 window.open 都會被擋住）
+      if (isStandaloneMode()) _setupStandaloneLoginLink();
       return;
     }
 
