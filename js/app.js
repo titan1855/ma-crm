@@ -2,7 +2,7 @@
  * app.js — 應用進入點
  * 初始化 Firebase Auth、路由、全域狀態
  */
-import { onUserReady, login, logout, checkAllowList } from './auth.js';
+import { onUserReady, login, logout, checkAllowList, handleRedirectResult } from './auth.js';
 import { getProfile, setProfile, serverTimestamp, setCurrentUid, getDocs, userCollection, addAllowedUser, getAllowedUsers, removeAllowedUser } from './db.js';
 import { initRouter, registerTab, navigate } from './router.js';
 import { initMigration } from './migration.js';
@@ -533,6 +533,9 @@ async function init() {
   showScreen('loading-screen');
   bindAuthButtons();
   initSetupScreen();
+
+  // PWA standalone redirect 登入完成後，先取回結果再讓 onAuthStateChanged 接手
+  await handleRedirectResult();
 
   onUserReady(async (user) => {
     if (!user) {
