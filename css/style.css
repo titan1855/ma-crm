@@ -966,3 +966,35 @@ a { color: inherit; text-decoration: none; }
 }
 
 .formhd-empty { color: var(--tx3); font-style: italic; }
+
+/* ================================================================
+   名單池模組（pool）
+   ================================================================ */
+.pool-warning {
+  margin: .5rem 1.25rem .1rem;
+  background: var(--wnl);
+  color: var(--wn);
+  border: 1px solid rgba(212, 128, 10, .3);
+  border-radius: var(--rs);
+  padding: .6rem .9rem;
+  font-size: .82rem;
+  font-weight: 500;
+}
+
+.pool-modal-actions {
+  display: flex;
+  gap: .75rem;
+  margin-top: 1.25rem;
+}
+
+.pool-modal-actions .btn {
+  flex: 1;
+  padding: .8rem;
+}
+
+.pool-modal-desc {
+  font-size: .9rem;
+  color: var(--tx2);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}

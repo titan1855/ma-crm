@@ -7,6 +7,7 @@ import { getProfile, setProfile, serverTimestamp, setCurrentUid } from './db.js'
 import { initRouter, registerTab, navigate } from './router.js';
 import { initMigration } from './migration.js';
 import { toast, getGreeting } from './utils.js';
+import { init as initPool } from './modules/pool.js';
 
 // ---- 全域狀態（其他模組可 import state） ----
 export const state = {
@@ -206,6 +207,7 @@ function registerMoreTab() {
 function enterApp() {
   showScreen('app');
   updateHeader();
+  initPool();
   registerMoreTab();
   initRouter();
   initMigration();
