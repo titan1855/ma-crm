@@ -1368,3 +1368,343 @@ a { color: inherit; text-decoration: none; }
 }
 
 .prs-modal-actions .btn { flex: 1; padding: .8rem; }
+
+/* ================================================================
+   共用：子頁面 Header（模組五～七 共用）
+   ================================================================ */
+
+.sub-page-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .25rem;
+}
+
+.sub-page-back {
+  background: none;
+  border: none;
+  font-size: .85rem;
+  color: var(--ac);
+  font-weight: 600;
+  padding: .25rem 0;
+  flex-shrink: 0;
+}
+
+.sub-page-title {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--tx);
+  flex: 1;
+}
+
+/* 共用表單輔助 */
+.form-row {
+  display: flex;
+  gap: .6rem;
+}
+
+.form-check-label {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .88rem;
+  color: var(--tx2);
+  cursor: pointer;
+  padding: .2rem 0;
+}
+
+.form-check-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--ac);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* 共用 Modal 按鈕列 */
+.form-actions {
+  display: flex;
+  gap: .75rem;
+  margin-top: 1.25rem;
+}
+
+/* ================================================================
+   模組五：自用產品記錄
+   ================================================================ */
+
+.prod-summary-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .7rem 1rem;
+}
+
+.prod-summary-label {
+  font-size: .85rem;
+  color: var(--tx2);
+}
+
+.prod-summary-val {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--ac);
+}
+
+.prod-cat-icon {
+  font-size: 1.4rem;
+  width: 2rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* ================================================================
+   模組六：MUFO 季度追蹤
+   ================================================================ */
+
+.mufo-loading {
+  font-size: .85rem;
+  color: var(--tx3);
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.mufo-stale-warning {
+  background: var(--wnl);
+  color: var(--wn);
+  font-size: .83rem;
+  font-weight: 500;
+  border-radius: var(--rs);
+  padding: .5rem .75rem;
+}
+
+.mufo-card {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+
+.mufo-quarter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.mufo-quarter-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tx);
+}
+
+.mufo-days-left {
+  font-size: .82rem;
+  color: var(--tx3);
+}
+
+.mufo-section-title {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--tx3);
+  letter-spacing: .03em;
+}
+
+/* 數字目標列 */
+.mufo-goal-row { display: flex; flex-direction: column; gap: .25rem; }
+
+.mufo-goal-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.mufo-goal-label {
+  font-size: .85rem;
+  color: var(--tx2);
+}
+
+.mufo-goal-nums {
+  font-size: .82rem;
+  color: var(--tx3);
+}
+
+.mufo-goal-nums.done {
+  color: var(--ac2);
+  font-weight: 600;
+}
+
+.mufo-bar-wrap {
+  height: 8px;
+  background: var(--sur2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mufo-bar {
+  height: 100%;
+  background: var(--ac2);
+  border-radius: 999px;
+  transition: width .4s ease;
+}
+
+.mufo-bar.done { background: var(--ac); }
+
+.mufo-proj-text {
+  font-size: .75rem;
+  color: var(--tx3);
+}
+
+/* 課程條件 */
+.mufo-course-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .88rem;
+}
+
+.mufo-course-check { font-size: 1.1rem; }
+
+.mufo-course-label { color: var(--tx2); }
+.mufo-course-label.done { color: var(--ac); font-weight: 600; }
+
+/* Card footer */
+.mufo-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: .25rem;
+  padding-top: .6rem;
+  border-top: 1px solid var(--bd);
+}
+
+.mufo-done-count { font-size: .85rem; color: var(--tx2); }
+.mufo-updated-txt { font-size: .78rem; color: var(--tx3); }
+
+.mufo-update-btn { width: 100%; margin-top: .5rem; }
+
+/* MUFO Modal 課程 */
+.mufo-modal-courses {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  margin-top: .25rem;
+  padding: .6rem .75rem;
+  background: var(--sur2);
+  border-radius: var(--rs);
+}
+
+/* ================================================================
+   模組七：挑戰獎自訂目標
+   ================================================================ */
+
+/* 挑戰卡片 */
+.chal-card { padding: .85rem 1rem; }
+
+.chal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: .5rem;
+  margin-bottom: .6rem;
+}
+
+.chal-card-info { flex: 1; min-width: 0; }
+
+.chal-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .3rem;
+  flex-shrink: 0;
+}
+
+.chal-overall-pct {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--tx3);
+}
+
+.chal-overall-pct.done { color: var(--ac); }
+
+/* 目標條件列表 */
+.chal-goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.chal-goal-item { display: flex; flex-direction: column; gap: .2rem; }
+
+.chal-goal-top {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  flex-wrap: wrap;
+}
+
+.chal-goal-label {
+  font-size: .83rem;
+  color: var(--tx2);
+  flex: 1;
+  min-width: 0;
+}
+
+.chal-goal-label.done { color: var(--ac); font-weight: 600; }
+
+.chal-goal-nums {
+  font-size: .78rem;
+  color: var(--tx3);
+  flex-shrink: 0;
+}
+
+.chal-goal-done-txt {
+  font-size: .78rem;
+  color: var(--tx3);
+  flex-shrink: 0;
+}
+
+.chal-bar-wrap {
+  height: 6px;
+  background: var(--sur2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.chal-bar {
+  height: 100%;
+  background: var(--ac2);
+  border-radius: 999px;
+  transition: width .4s ease;
+}
+
+.chal-bar.done { background: var(--ac); }
+
+/* 目標輸入列（新增 Modal） */
+.chal-goals-editor {
+  margin-top: .5rem;
+}
+
+.chal-goals-editor-title {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--tx3);
+  margin-bottom: .4rem;
+}
+
+.chal-goal-input-row {
+  display: flex;
+  gap: .35rem;
+  margin-bottom: .4rem;
+  align-items: center;
+}
+
+.chal-goal-input-row .form-input,
+.chal-goal-input-row .form-select {
+  padding: .38rem .5rem;
+}
+
+/* 更新 Modal */
+.chal-edit-desc {
+  font-size: .9rem;
+  color: var(--tx2);
+  margin-bottom: .75rem;
+  font-weight: 500;
+}
