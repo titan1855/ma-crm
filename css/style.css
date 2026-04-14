@@ -1963,3 +1963,81 @@ a { color: inherit; text-decoration: none; }
   margin-top: .35rem;
   line-height: 1.5;
 }
+
+/* ================================================================
+   邀請夥伴（inv-*）
+   ================================================================ */
+
+.inv-loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--tx3);
+  font-size: .9rem;
+}
+
+.inv-count {
+  font-size: .82rem;
+  color: var(--tx3);
+  margin: .25rem 0 .75rem;
+}
+
+.inv-empty {
+  font-size: .88rem;
+  color: var(--tx3);
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.inv-list {
+  margin-bottom: 1rem;
+}
+
+.inv-member-card {
+  margin-bottom: .5rem;
+  padding: .75rem 1rem;
+}
+
+.inv-member-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.inv-member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.inv-member-name {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--tx);
+}
+
+.inv-member-email {
+  font-size: .76rem;
+  color: var(--tx3);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inv-member-date {
+  font-size: .72rem;
+  color: var(--tx3);
+  margin-top: 2px;
+}
+
+.inv-add-card {
+  padding: .9rem 1rem;
+}
+
+.inv-add-title {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--tx3);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  margin-bottom: .75rem;
+}

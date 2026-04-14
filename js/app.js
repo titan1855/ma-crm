@@ -3,7 +3,7 @@
  * 初始化 Firebase Auth、路由、全域狀態
  */
 import { onUserReady, login, logout, checkAllowList } from './auth.js';
-import { getProfile, setProfile, serverTimestamp, setCurrentUid, getDocs, userCollection } from './db.js';
+import { getProfile, setProfile, serverTimestamp, setCurrentUid, getDocs, userCollection, addAllowedUser, getAllowedUsers, removeAllowedUser } from './db.js';
 import { initRouter, registerTab, navigate } from './router.js';
 import { initMigration } from './migration.js';
 import { toast, getGreeting } from './utils.js';
@@ -137,6 +137,7 @@ function registerMoreTab() {
     if (sub === 'weekly')       { renderWeekly(content);       return; }
     if (sub === 'calendar')     { renderCalendar(content);     return; }
     if (sub === 'settings')     { _renderSettings(content);    return; }
+    if (sub === 'invite')       { _renderInvite(content);      return; }
 
     content.innerHTML = `
       <div class="more-menu">
@@ -219,6 +220,168 @@ function registerMoreTab() {
       await logout();
       location.reload();
     });
+  });
+}
+
+// ==============================
+// 邀請夥伴（Admin Only）
+// ==============================
+
+async function _renderInvite(content) {
+  content.innerHTML = `
+    <div class="sub-page-header">
+      <button class="sub-page-back">← 返回</button>
+      <span class="sub-page-title">👥 邀請夥伴</span>
+    </div>
+    <div class="inv-loading">載入中…</div>
+  `;
+  content.querySelector('.sub-page-back').addEventListener('click', () => navigate('more'));
+  await _loadInvitePage(content);
+}
+
+async function _loadInvitePage(content) {
+  let users;
+  try {
+    users = await getAllowedUsers();
+  } catch (err) {
+    console.error('[invite] load error', err);
+    toast('載入失敗，請重試', 'error');
+    return;
+  }
+
+  // 排除自己，依加入時間排序
+  const others = users
+    .filter(u => u.email !== state.user?.email)
+    .sort((a, b) => {
+      const ta = a.addedAt?.toDate?.() ?? new Date(0);
+      const tb = b.addedAt?.toDate?.() ?? new Date(0);
+      return ta - tb;
+    });
+
+  const listHtml = others.length === 0
+    ? `<p class="inv-empty">尚未邀請任何夥伴</p>`
+    : others.map(u => {
+        const dateStr = u.addedAt?.toDate
+          ? (() => { const d = u.addedAt.toDate(); return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`; })()
+          : '—';
+        return `
+          <div class="card inv-member-card" data-email="${_esc(u.email)}">
+            <div class="inv-member-row">
+              <div class="inv-member-info">
+                <div class="inv-member-name">${_esc(u.name || u.email)}</div>
+                <div class="inv-member-email">${_esc(u.email)}</div>
+                <div class="inv-member-date">加入：${dateStr}</div>
+              </div>
+              <button class="btn btn-danger inv-remove-btn" data-email="${_esc(u.email)}" data-name="${_esc(u.name || u.email)}" style="flex-shrink:0;padding:.45rem .8rem;font-size:.78rem">移除</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+  content.innerHTML = `
+    <div class="sub-page-header">
+      <button class="sub-page-back">← 返回</button>
+      <span class="sub-page-title">👥 邀請夥伴</span>
+    </div>
+    <p class="inv-count">已邀請 <strong>${others.length}</strong> 位夥伴</p>
+
+    <div class="inv-list">${listHtml}</div>
+
+    <div class="card inv-add-card">
+      <div class="inv-add-title">新增夥伴</div>
+      <div class="form-group">
+        <label class="form-label">Gmail</label>
+        <input class="form-input" id="inv-email" type="email" placeholder="example@gmail.com" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">顯示名稱</label>
+        <input class="form-input" id="inv-name" placeholder="例：王小明" autocomplete="off">
+      </div>
+      <button class="btn btn-primary inv-send-btn" style="width:100%">送出邀請</button>
+    </div>
+  `;
+
+  content.querySelector('.sub-page-back').addEventListener('click', () => navigate('more'));
+
+  // 移除夥伴
+  content.querySelectorAll('.inv-remove-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const email = btn.dataset.email;
+      const name  = btn.dataset.name;
+      const ok = await _confirmModal(`確定要移除「${name}」？\n該夥伴下次登入將被擋住（資料不會刪除）。`);
+      if (!ok) return;
+      btn.disabled = true;
+      try {
+        await removeAllowedUser(email);
+        toast(`已移除 ${name}`, 'info');
+        await _loadInvitePage(content);
+      } catch (err) {
+        console.error('[invite] remove error', err);
+        toast('移除失敗，請重試', 'error');
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // 送出邀請
+  content.querySelector('.inv-send-btn').addEventListener('click', async () => {
+    const emailInput = content.querySelector('#inv-email');
+    const nameInput  = content.querySelector('#inv-name');
+    const email = emailInput.value.trim().toLowerCase();
+    const name  = nameInput.value.trim();
+
+    if (!email || !email.includes('@')) {
+      emailInput.style.borderColor = 'var(--dg)';
+      emailInput.focus();
+      return;
+    }
+    if (!name) {
+      nameInput.style.borderColor = 'var(--dg)';
+      nameInput.focus();
+      return;
+    }
+
+    const sendBtn = content.querySelector('.inv-send-btn');
+    sendBtn.disabled = true; sendBtn.textContent = '送出中…';
+
+    try {
+      await addAllowedUser(email, 'member', name, state.user?.email ?? '');
+      toast(`已邀請 ${name}`, 'success');
+      emailInput.value = '';
+      nameInput.value  = '';
+      await _loadInvitePage(content);
+    } catch (err) {
+      console.error('[invite] add error', err);
+      toast('邀請失敗，請重試', 'error');
+      sendBtn.disabled = false; sendBtn.textContent = '送出邀請';
+    }
+  });
+}
+
+function _confirmModal(message) {
+  return new Promise(resolve => {
+    const container = document.getElementById('modal-container');
+    const el = document.createElement('div');
+    el.className = 'modal-backdrop';
+    el.innerHTML = `
+      <div class="modal-box">
+        <p class="modal-msg" style="white-space:pre-line;margin-bottom:1.25rem">${_esc(message)}</p>
+        <div class="form-actions">
+          <button class="btn btn-ghost" id="conf-cancel">取消</button>
+          <button class="btn btn-danger" id="conf-ok">確認</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+    const close = (val) => {
+      el.classList.remove('show');
+      el.addEventListener('transitionend', () => el.remove(), { once: true });
+      resolve(val);
+    };
+    el.querySelector('#conf-cancel').onclick = () => close(false);
+    el.querySelector('#conf-ok').onclick     = () => close(true);
+    el.addEventListener('click', e => { if (e.target === el) close(false); });
   });
 }
 

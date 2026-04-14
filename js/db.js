@@ -116,3 +116,8 @@ export async function getAllowedUsers() {
   const snap = await getDocs(collection(db, 'allowedUsers'));
   return snap.docs.map(d => ({ email: d.id, ...d.data() }));
 }
+
+/** 移除白名單使用者（限管理員） */
+export async function removeAllowedUser(email) {
+  return deleteDoc(doc(db, 'allowedUsers', email));
+}
