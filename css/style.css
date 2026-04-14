@@ -2041,3 +2041,80 @@ a { color: inherit; text-decoration: none; }
   text-transform: uppercase;
   margin-bottom: .75rem;
 }
+
+/* ================================================================
+   產品見證（test-*）
+   ================================================================ */
+
+.test-filter-group {
+  margin-bottom: .5rem;
+}
+
+.test-filter-label {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--tx3);
+  letter-spacing: .04em;
+  margin-bottom: .3rem;
+}
+
+.test-card {
+  margin-bottom: .5rem;
+  padding: .75rem .9rem;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+
+.test-card:active { opacity: .75; }
+
+.test-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin-bottom: .45rem;
+}
+
+.test-tag {
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .15rem .5rem;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.test-tag-issue {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.test-tag-product {
+  background: var(--primary-bg);
+  color: var(--primary);
+}
+
+.test-content {
+  font-size: .87rem;
+  line-height: 1.6;
+  color: var(--tx);
+  margin-bottom: .3rem;
+}
+
+.test-meta {
+  font-size: .74rem;
+  color: var(--tx3);
+  margin-top: .15rem;
+}
+
+.test-photo-row {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-top: .5rem;
+}
+
+.test-photo-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  margin-bottom: .25rem;
+}

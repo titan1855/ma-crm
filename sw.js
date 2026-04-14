@@ -22,6 +22,7 @@ const ASSETS = [
   './js/modules/achievements.js',
   './js/modules/weekly.js',
   './js/modules/onboarding.js',
+  './js/modules/testimonials.js',
   './icon-192.png',
   './icon-512.png',
   'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display&display=swap'

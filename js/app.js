@@ -15,7 +15,8 @@ import { render as renderMufo }        from './modules/mufo.js';
 import { render as renderChallenges }  from './modules/challenges.js';
 import { render as renderAchievements } from './modules/achievements.js';
 import { render as renderWeekly, setWeeklyProfile } from './modules/weekly.js';
-import { render as renderCalendar } from './modules/calendar.js';
+import { render as renderCalendar }      from './modules/calendar.js';
+import { render as renderTestimonials }  from './modules/testimonials.js';
 
 // ---- 全域狀態（其他模組可 import state） ----
 export const state = {
@@ -135,7 +136,8 @@ function registerMoreTab() {
     if (sub === 'challenges')   { renderChallenges(content);   return; }
     if (sub === 'achievements') { renderAchievements(content); return; }
     if (sub === 'weekly')       { renderWeekly(content);       return; }
-    if (sub === 'calendar')     { renderCalendar(content);     return; }
+    if (sub === 'calendar')     { renderCalendar(content);      return; }
+    if (sub === 'testimonials') { renderTestimonials(content);  return; }
     if (sub === 'settings')     { _renderSettings(content);    return; }
     if (sub === 'invite')       { _renderInvite(content);      return; }
 
@@ -156,6 +158,11 @@ function registerMoreTab() {
           <button class="more-item" data-sub="products">
             <span class="more-icon">🛍️</span>
             <span class="more-label">自用產品記錄</span>
+            <span class="more-arrow">›</span>
+          </button>
+          <button class="more-item" data-sub="testimonials">
+            <span class="more-icon">💬</span>
+            <span class="more-label">產品見證</span>
             <span class="more-arrow">›</span>
           </button>
         </div>
