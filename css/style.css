@@ -1860,3 +1860,106 @@ a { color: inherit; text-decoration: none; }
   flex-wrap: wrap;
   gap: .4rem;
 }
+
+/* ================================================================
+   Phase 7：約會行程月曆（cal-*）
+   ================================================================ */
+
+.cal-loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--tx3);
+  font-size: .9rem;
+}
+
+.cal-hint {
+  font-size: .78rem;
+  color: var(--tx3);
+  margin: .25rem 0 .75rem;
+  line-height: 1.5;
+}
+
+.cal-day-group {
+  margin-bottom: 1rem;
+}
+
+.cal-day-label {
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--tx3);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: .2rem 0 .45rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: .5rem;
+}
+
+.cal-day-label.today {
+  color: var(--ac);
+}
+
+.cal-overdue-label {
+  color: var(--dg);
+}
+
+.cal-card {
+  margin-bottom: .5rem;
+  padding: .7rem .9rem;
+}
+
+.cal-card.cal-overdue {
+  border-left: 3px solid var(--dg);
+  opacity: .85;
+}
+
+.cal-avatar-wrap {
+  flex-shrink: 0;
+  margin-right: .65rem;
+}
+
+/* ================================================================
+   Phase 7：設定頁面（settings-*）
+   ================================================================ */
+
+.settings-section {
+  margin-bottom: 1.25rem;
+}
+
+.settings-section-title {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--tx3);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: .4rem;
+  padding: 0 .1rem;
+}
+
+.settings-card {
+  padding: .85rem 1rem;
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .25rem;
+}
+
+.settings-label {
+  font-size: .87rem;
+  color: var(--tx2);
+}
+
+.settings-value {
+  font-size: .87rem;
+  font-weight: 600;
+  color: var(--tx);
+}
+
+.settings-hint {
+  font-size: .75rem;
+  color: var(--tx3);
+  margin-top: .35rem;
+  line-height: 1.5;
+}

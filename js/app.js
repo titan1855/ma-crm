@@ -3,7 +3,7 @@
  * 初始化 Firebase Auth、路由、全域狀態
  */
 import { onUserReady, login, logout, checkAllowList } from './auth.js';
-import { getProfile, setProfile, serverTimestamp, setCurrentUid } from './db.js';
+import { getProfile, setProfile, serverTimestamp, setCurrentUid, getDocs, userCollection } from './db.js';
 import { initRouter, registerTab, navigate } from './router.js';
 import { initMigration } from './migration.js';
 import { toast, getGreeting } from './utils.js';
@@ -15,6 +15,7 @@ import { render as renderMufo }        from './modules/mufo.js';
 import { render as renderChallenges }  from './modules/challenges.js';
 import { render as renderAchievements } from './modules/achievements.js';
 import { render as renderWeekly, setWeeklyProfile } from './modules/weekly.js';
+import { render as renderCalendar } from './modules/calendar.js';
 
 // ---- 全域狀態（其他模組可 import state） ----
 export const state = {
@@ -134,6 +135,8 @@ function registerMoreTab() {
     if (sub === 'challenges')   { renderChallenges(content);   return; }
     if (sub === 'achievements') { renderAchievements(content); return; }
     if (sub === 'weekly')       { renderWeekly(content);       return; }
+    if (sub === 'calendar')     { renderCalendar(content);     return; }
+    if (sub === 'settings')     { _renderSettings(content);    return; }
 
     content.innerHTML = `
       <div class="more-menu">
@@ -188,6 +191,11 @@ function registerMoreTab() {
 
         <div class="more-section-title">帳號</div>
         <div class="more-list">
+          <button class="more-item" data-sub="settings">
+            <span class="more-icon">⚙️</span>
+            <span class="more-label">設定</span>
+            <span class="more-arrow">›</span>
+          </button>
           <button class="more-item" id="more-logout-btn">
             <span class="more-icon">🚪</span>
             <span class="more-label" style="color:var(--dg)">登出</span>
@@ -212,6 +220,122 @@ function registerMoreTab() {
       location.reload();
     });
   });
+}
+
+// ==============================
+// 設定頁面
+// ==============================
+
+function _renderSettings(content) {
+  content.innerHTML = `
+    <div class="sub-page-header">
+      <button class="sub-page-back">← 返回</button>
+      <span class="sub-page-title">⚙️ 設定</span>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">個人資訊</div>
+      <div class="card settings-card">
+        <div class="settings-row">
+          <span class="settings-label">顯示名稱</span>
+          <span class="settings-value" id="st-name-val">${_esc(state.profile?.name ?? '')}</span>
+        </div>
+        <button class="btn btn-ghost settings-edit-name-btn" style="margin-top:.5rem;width:100%">修改名稱</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">資料管理</div>
+      <div class="card settings-card">
+        <button class="btn btn-ghost" id="st-export-btn" style="width:100%;margin-bottom:.5rem">匯出資料（JSON）</button>
+        <p class="settings-hint">將名單池與首選名單以 JSON 格式下載備份</p>
+      </div>
+    </div>
+  `;
+
+  content.querySelector('.sub-page-back').addEventListener('click', () => navigate('more'));
+
+  // 修改名稱
+  content.querySelector('.settings-edit-name-btn').addEventListener('click', () => {
+    const container = document.getElementById('modal-container');
+    const el = document.createElement('div');
+    el.className = 'modal-backdrop';
+    el.innerHTML = `
+      <div class="modal-box">
+        <div class="modal-title">修改顯示名稱</div>
+        <div class="form-group">
+          <label class="form-label">新名稱</label>
+          <input class="form-input" id="st-new-name" value="${_esc(state.profile?.name ?? '')}" autocomplete="off">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost" id="st-name-cancel">取消</button>
+          <button class="btn btn-primary" id="st-name-save">儲存</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+
+    const closeModal = () => {
+      el.classList.remove('show');
+      el.addEventListener('transitionend', () => el.remove(), { once: true });
+    };
+    el.querySelector('#st-name-cancel').onclick = closeModal;
+    el.addEventListener('click', e => { if (e.target === el) closeModal(); });
+
+    el.querySelector('#st-name-save').onclick = async () => {
+      const newName = el.querySelector('#st-new-name').value.trim();
+      if (!newName) return;
+      const saveBtn = el.querySelector('#st-name-save');
+      saveBtn.disabled = true; saveBtn.textContent = '儲存中…';
+      try {
+        await setProfile({ ...state.profile, name: newName });
+        state.profile = { ...state.profile, name: newName };
+        document.getElementById('header-user-name').textContent = newName;
+        content.querySelector('#st-name-val').textContent = newName;
+        closeModal();
+        toast('名稱已更新', 'success');
+      } catch (err) {
+        console.error('[settings] name update error', err);
+        toast('更新失敗，請重試', 'error');
+        saveBtn.disabled = false; saveBtn.textContent = '儲存';
+      }
+    };
+  });
+
+  // 匯出 JSON
+  content.querySelector('#st-export-btn').addEventListener('click', async () => {
+    const btn = content.querySelector('#st-export-btn');
+    btn.disabled = true; btn.textContent = '匯出中…';
+    try {
+      const [poolSnap, prospectsSnap] = await Promise.all([
+        getDocs(userCollection('pool')),
+        getDocs(userCollection('prospects')),
+      ]);
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        pool:       poolSnap.docs.map(d => ({ id: d.id, ...d.data() })),
+        prospects:  prospectsSnap.docs.map(d => ({ id: d.id, ...d.data() })),
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `ma-crm-export-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('資料已匯出', 'success');
+    } catch (err) {
+      console.error('[settings] export error', err);
+      toast('匯出失敗，請重試', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '匯出資料（JSON）';
+    }
+  });
+}
+
+function _esc(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ==============================

@@ -10,6 +10,7 @@ import {
 } from '../db.js';
 import { toast, avatarColor, avatarInitial, emptyState, debounce } from '../utils.js';
 import { recordPoolAdded } from './daily312.js';
+import { checkAchievements } from './achievements.js';
 
 let _unsubscribe = null;
 let _allItems = [];
@@ -245,6 +246,7 @@ function _openAddModal() {
       });
       // 計入今日 312 poolCount（靜默失敗不影響主流程）
       recordPoolAdded(docRef.id, name).catch(() => {});
+      checkAchievements({ pool_count: _allItems.length + 1 }).catch(() => {});
       toast(`已新增 ${name}`, 'success');
       _closeModal(el);
     } catch (err) {

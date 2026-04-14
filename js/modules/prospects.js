@@ -11,6 +11,7 @@ import {
   toast, avatarColor, avatarInitial, emptyState, debounce,
   todayStr, formatRelativeDate, confirmDialog
 } from '../utils.js';
+import { checkAchievements } from './achievements.js';
 
 // ── 常數設定 ──────────────────────────────────────────────
 
@@ -630,6 +631,7 @@ function _openEditModal(p) {
       toast('已更新', 'success');
       _closeModal(el);
       _refreshDetailProfile({ ...p, name, phone, email, status });
+      if (status === 'signed') checkAchievements({ first_signed: true }).catch(() => {});
     } catch (err) {
       console.error('[prospects] update error', err);
       toast('儲存失敗，請重試', 'error');
@@ -781,6 +783,7 @@ function _openStepModal(p) {
       if (STEP_TIPS[nextStep]) {
         setTimeout(() => _showStepTip(STEP_TIPS[nextStep]), 500);
       }
+      checkAchievements({ first_step4: nextStep >= 4 }).catch(() => {});
     } catch (err) {
       console.error('[step] advance error', err);
       toast('更新失敗，請重試', 'error');
@@ -931,8 +934,15 @@ function _openTalkModal(p, onAfterSave = null) {
           createdAt: serverTimestamp(),
         }
       );
-      // 更新最後聯繫時間
-      await updateDoc(userSubDoc('prospects', p.id), { lastContactAt: serverTimestamp() });
+      // 更新最後聯繫時間 + 下次約定時間（若有填）
+      const nextDtVal = el.querySelector('#talk-nextdt').value;
+      const nextLocVal = el.querySelector('#talk-nextloc').value.trim();
+      const prospectUpdate = { lastContactAt: serverTimestamp() };
+      if (nextDtVal) {
+        prospectUpdate.nextMeetingDate = nextDtVal;
+        prospectUpdate.nextMeetingLoc  = nextLocVal;
+      }
+      await updateDoc(userSubDoc('prospects', p.id), prospectUpdate);
       _closeModal(el);
       if (onAfterSave) onAfterSave({ type: typeVal, prospectId: p.id });
       _openEmotionModal(talkRef.id, p.id);
@@ -1052,6 +1062,7 @@ function _openSaleModal(prospectId, prospectName) {
         createdAt: serverTimestamp(),
       });
       toast('購物記錄已新增', 'success');
+      checkAchievements({ first_sale: true }).catch(() => {});
       _closeModal(el);
     } catch (err) {
       console.error('[sale] addDoc error', err);

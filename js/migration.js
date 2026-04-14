@@ -3,6 +3,7 @@
  * 偵測 localStorage.ma3_c，提示使用者是否匯入至 Firestore
  */
 import { toast } from './utils.js';
+import { userCollection, addDoc, serverTimestamp } from './db.js';
 
 /** 檢查並啟動遷移流程 */
 export function initMigration() {
@@ -61,7 +62,31 @@ function _showPrompt(data) {
 }
 
 async function _doMigration(data) {
-  // 等 prospects 模組完成後實作完整遷移邏輯
-  // 目前先提示使用者，保留資料
-  toast(`已記錄 ${data.length} 筆舊資料，完整匯入功能開發中`, 'warning');
+  let ok = 0;
+  let fail = 0;
+
+  for (const item of data) {
+    try {
+      await addDoc(userCollection('pool'), {
+        name:       item.name ?? item.n ?? '（無名稱）',
+        howMet:     item.howMet ?? item.hm ?? '',
+        impression: item.impression ?? item.imp ?? '',
+        status:     'pending',
+        createdAt:  serverTimestamp(),
+        _migratedFrom: 'ma3',
+      });
+      ok++;
+    } catch (err) {
+      console.error('[migration] addDoc error', err, item);
+      fail++;
+    }
+  }
+
+  localStorage.removeItem('ma3_c');
+
+  if (fail === 0) {
+    toast(`已匯入 ${ok} 筆名單到名單池`, 'success');
+  } else {
+    toast(`匯入完成：成功 ${ok} 筆，失敗 ${fail} 筆`, 'warning');
+  }
 }
