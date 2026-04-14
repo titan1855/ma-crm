@@ -2,7 +2,7 @@
  * app.js — 應用進入點
  * 初始化 Firebase Auth、路由、全域狀態
  */
-import { onUserReady, login, logout, checkAllowList, handleRedirectResult } from './auth.js';
+import { onUserReady, login, logout, checkAllowList, isStandaloneMode } from './auth.js';
 import { getProfile, setProfile, serverTimestamp, setCurrentUid, getDocs, userCollection, addAllowedUser, getAllowedUsers, removeAllowedUser } from './db.js';
 import { initRouter, registerTab, navigate } from './router.js';
 import { initMigration } from './migration.js';
@@ -103,6 +103,20 @@ function bindAuthButtons() {
   document.getElementById('btn-google-login')?.addEventListener('click', async () => {
     const btn = document.getElementById('btn-google-login');
     btn.disabled = true;
+
+    if (isStandaloneMode()) {
+      // iOS PWA standalone：signInWithPopup 無法在 standalone 模式正常運作。
+      // 改為開啟普通 Safari 分頁讓使用者在那裡登入，
+      // Firebase 會將 auth token 存入 localStorage（同源共用），
+      // 使用者回到 App 後 visibilitychange 偵測到並自動重載，
+      // onAuthStateChanged 即可取得已登入的 user。
+      const loginUrl = window.location.origin + window.location.pathname + '?pwa_auth=1';
+      window.open(loginUrl, '_blank');
+      toast('已開啟 Safari 登入頁，完成 Google 登入後回到此 App 即可', 'info');
+      btn.disabled = false;
+      return;
+    }
+
     try {
       await login();
       // onUserReady 會接手後續流程
@@ -534,10 +548,38 @@ async function init() {
   bindAuthButtons();
   initSetupScreen();
 
-  // PWA standalone redirect 登入完成後，先取回結果再讓 onAuthStateChanged 接手
-  await handleRedirectResult();
+  // iOS PWA：使用者在 Safari 完成登入後回到 App 時，
+  // 自動重載以讓 onAuthStateChanged 拿到最新 auth 狀態
+  if (isStandaloneMode()) {
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !state.user) {
+        location.reload();
+      }
+    });
+  }
+
+  // 若是從 PWA 開啟的 Safari 登入輔助頁（?pwa_auth=1），
+  // 登入成功後顯示「請關閉此頁回到 App」畫面
+  const isPwaAuthTab = new URLSearchParams(window.location.search).has('pwa_auth');
 
   onUserReady(async (user) => {
+    // 若是 Safari 登入輔助頁且已登入，顯示完成畫面
+    if (isPwaAuthTab && user) {
+      document.body.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                    min-height:100dvh;padding:2rem;text-align:center;background:var(--bg)">
+          <div style="font-size:3.5rem;margin-bottom:1rem">✅</div>
+          <h2 style="font-size:1.15rem;font-weight:700;margin-bottom:.5rem">登入成功！</h2>
+          <p style="color:var(--tx3);font-size:.9rem;line-height:1.6;margin-bottom:1.75rem">
+            請關閉此分頁，<br>回到 MA ENGINE App 即可繼續
+          </p>
+          <button class="btn btn-primary" onclick="window.close()"
+            style="padding:.85rem 2.5rem;font-size:.95rem">關閉此分頁</button>
+        </div>
+      `;
+      return;
+    }
+
     if (!user) {
       showScreen('login-screen');
       return;
