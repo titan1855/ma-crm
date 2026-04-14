@@ -998,3 +998,196 @@ a { color: inherit; text-decoration: none; }
   line-height: 1.6;
   margin-bottom: 1rem;
 }
+
+/* ================================================================
+   首選名單模組（prospects）
+   ================================================================ */
+
+/* ---- 詳情面板 Header ---- */
+.prs-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .7rem 1rem;
+  background: var(--sur);
+  border-bottom: 1px solid var(--bd);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+/* ---- 名片區 ---- */
+.prs-detail-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem .75rem;
+}
+
+/* ---- 詳情頁各區塊 ---- */
+.prs-detail-section {
+  background: var(--sur);
+  border-radius: var(--r);
+  border: 1px solid var(--bd);
+  margin: .5rem 1rem;
+  padding: .9rem 1rem;
+  box-shadow: var(--sh);
+}
+
+.prs-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .75rem;
+  font-size: .88rem;
+  font-weight: 600;
+}
+
+/* ---- 六步驟推進確認文字 ---- */
+.prs-step-confirm-text {
+  font-size: .9rem;
+  color: var(--tx2);
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+
+/* ---- 會面記錄卡片 ---- */
+.prs-talk-card {
+  background: var(--sur2);
+  border-radius: var(--rs);
+  padding: .7rem .8rem;
+  margin-bottom: .45rem;
+}
+
+.prs-talk-card:last-child { margin-bottom: 0; }
+
+.prs-talk-meta {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .74rem;
+  color: var(--tx3);
+  margin-bottom: .35rem;
+  flex-wrap: wrap;
+}
+
+.prs-talk-type {
+  background: var(--acl);
+  color: var(--ac);
+  padding: .1rem .45rem;
+  border-radius: 10px;
+  font-size: .67rem;
+  font-weight: 500;
+}
+
+.prs-talk-field {
+  font-size: .82rem;
+  color: var(--tx2);
+  margin-top: .3rem;
+  line-height: 1.5;
+}
+
+.prs-talk-field-label {
+  font-size: .67rem;
+  color: var(--tx3);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 1px;
+}
+
+.prs-talk-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  margin-top: .35rem;
+}
+
+/* ---- 購物記錄卡片 ---- */
+.prs-sale-card {
+  background: var(--sur2);
+  border-radius: var(--rs);
+  padding: .65rem .75rem;
+  margin-bottom: .4rem;
+}
+
+.prs-sale-card:last-child { margin-bottom: 0; }
+
+/* ---- 會面記錄 Modal 的分段標題 ---- */
+.prs-talk-section-title {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--ac);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: .65rem 0 .3rem;
+  border-top: 1px solid var(--bd);
+  margin: .4rem 0 0;
+}
+
+.prs-talk-section-title.prs-talk-section-first {
+  border-top: none;
+  padding-top: .2rem;
+  margin-top: 0;
+}
+
+/* ---- 進度 checkbox 列 ---- */
+.prs-progress-label {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .85rem;
+  padding: .22rem 0;
+  cursor: pointer;
+}
+
+/* ---- 情緒按鈕 ---- */
+.prs-emotion-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: .25rem;
+}
+
+.prs-emotion-btn {
+  font-size: 1.8rem;
+  background: none;
+  border: 2px solid var(--bd);
+  border-radius: var(--r);
+  padding: .5rem .9rem;
+  cursor: pointer;
+  transition: border-color .15s;
+  line-height: 1.4;
+}
+
+.prs-emotion-btn span {
+  font-size: .68rem;
+  color: var(--tx3);
+  display: block;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-style: normal;
+}
+
+/* ---- 空狀態（子列表用） ---- */
+.prs-empty-sub {
+  font-size: .83rem;
+  color: var(--tx3);
+  text-align: center;
+  padding: .75rem 0;
+}
+
+/* ---- 載入中 ---- */
+.prs-loading {
+  font-size: .83rem;
+  color: var(--tx3);
+  text-align: center;
+  padding: .75rem 0;
+}
+
+/* ---- Modal 按鈕列 ---- */
+.prs-modal-actions {
+  display: flex;
+  gap: .75rem;
+  margin-top: 1.25rem;
+}
+
+.prs-modal-actions .btn { flex: 1; padding: .8rem; }

@@ -65,6 +65,24 @@ export function userSubDoc(collectionName, docId) {
   return doc(db, 'users', _uid, collectionName, docId);
 }
 
+/**
+ * 深層子集合 CollectionReference：users/{uid}/{col}/{docId}/{subCol}
+ * ★ talks、sales 等子集合（5 節點 = 奇數 = Collection ✓）
+ */
+export function userSubCollection(col, docId, subCol) {
+  if (!_uid) throw new Error('未登入，無法存取資料');
+  return collection(db, 'users', _uid, col, docId, subCol);
+}
+
+/**
+ * 深層子集合文件 DocumentReference：users/{uid}/{col}/{docId}/{subCol}/{subDocId}
+ *   路徑 6 節點（偶數）= 合法 Document
+ */
+export function userSubSubDoc(col, docId, subCol, subDocId) {
+  if (!_uid) throw new Error('未登入，無法存取資料');
+  return doc(db, 'users', _uid, col, docId, subCol, subDocId);
+}
+
 /** 讀取使用者 profile（找不到文件返回 null；真正的錯誤往上拋） */
 export async function getProfile() {
   const snap = await getDoc(userRootDoc());
