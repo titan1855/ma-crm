@@ -4,6 +4,8 @@
  */
 import { registerTab, navigate } from '../router.js';
 import { openTalkModal } from './prospects.js';
+import { renderOnboardingCard } from './onboarding.js';
+import { checkAchievements } from './achievements.js';
 import {
   userCollection, userSubDoc, userSubCollection,
   getDoc, setDoc, updateDoc, addDoc,
@@ -72,6 +74,10 @@ export function render(content) {
   _bindEvents(content);
   _startSnapshots(content);
   _checkStreakReset(); // 非同步，完成後更新 badge
+  // 新手引導卡（如需要）
+  if (_profile?.onboardingDay > 0) {
+    renderOnboardingCard(content, _profile, p => { _profile = p; }).catch(() => {});
+  }
 }
 
 // ── 骨架 HTML ──────────────────────────────────────────────
@@ -334,10 +340,14 @@ async function _recordDailyContact(type, prospectId, prospectName) {
     && (newDoc.meetCount ?? 0) >= 1
     && (newDoc.poolCount ?? 0) >= 2;
 
+  // 成就：first_chat / first_meet
+  checkAchievements({ first_chat: !isMeet, first_meet: isMeet }).catch(() => {});
+
   if (!cur.completed && nowDone) {
     await updateDoc(ref, { completed: true });
     _celebrateCompletion();
     await _incrementStreak();
+    checkAchievements({ first_312: true }).catch(() => {});
   }
 }
 
@@ -388,6 +398,7 @@ async function _incrementStreak() {
     await setProfile({ streak: newStreak });
     _profile = { ..._profile, streak: newStreak };
     _updateStreakBadge(newCurrent);
+    checkAchievements({ streak: newCurrent }).catch(() => {});
   } catch (err) {
     console.error('[streak] increment error', err);
   }

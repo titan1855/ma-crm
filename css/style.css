@@ -1708,3 +1708,155 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: .75rem;
   font-weight: 500;
 }
+
+/* ================================================================
+   模組八：成就與里程碑
+   ================================================================ */
+
+.ach-loading-msg {
+  text-align: center;
+  color: var(--tx3);
+  font-size: .85rem;
+  padding: 1.5rem 0;
+}
+
+.ach-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .65rem;
+}
+
+.ach-card {
+  background: var(--sur);
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  padding: .8rem .75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .25rem;
+}
+
+.ach-unlocked {
+  border: 2px solid var(--acl);
+  background: linear-gradient(135deg, var(--sur) 0%, var(--acl) 100%);
+}
+
+.ach-locked {
+  opacity: .55;
+  filter: grayscale(.4);
+}
+
+.ach-icon      { font-size: 1.8rem; }
+.ach-name      { font-size: .8rem; font-weight: 700; color: var(--tx); }
+.ach-desc      { font-size: .72rem; color: var(--tx3); line-height: 1.4; }
+.ach-date      { font-size: .68rem; color: var(--ac2); margin-top: .1rem; }
+
+/* 解鎖慶祝 Modal */
+.ach-unlock-modal {
+  text-align: center;
+}
+
+.ach-unlock-icon  { font-size: 3rem; margin-bottom: .4rem; }
+.ach-unlock-title { font-size: .78rem; color: var(--ac2); font-weight: 600; letter-spacing: .05em; }
+.ach-unlock-name  { font-size: 1.25rem; font-weight: 700; color: var(--tx); margin: .25rem 0; }
+.ach-unlock-desc  { font-size: .85rem; color: var(--tx2); }
+
+/* ================================================================
+   模組九：週報摘要
+   ================================================================ */
+
+.wk-loading {
+  font-size: .85rem;
+  color: var(--tx3);
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.wk-nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+}
+
+.wk-week-label {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--tx);
+}
+
+.wk-card {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: .9rem 1rem;
+}
+
+.wk-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.wk-stat-label {
+  font-size: .85rem;
+  color: var(--tx2);
+}
+
+.wk-stat-val {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--tx);
+}
+
+.wk-mufo-row {
+  margin-top: .35rem;
+  padding-top: .5rem;
+  border-top: 1px solid var(--bd);
+  font-size: .8rem;
+  color: var(--tx3);
+}
+
+/* ================================================================
+   模組十：新手引導 Onboarding
+   ================================================================ */
+
+.ob-card {
+  background: var(--inf);
+  color: #fff;
+  border-radius: var(--r);
+  padding: .85rem 1rem;
+  margin-bottom: .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  transition: background .3s;
+}
+
+.ob-card.ob-done   { background: var(--ac); }
+.ob-card.ob-loading { opacity: .8; }
+
+.ob-progress {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  opacity: .85;
+}
+
+.ob-task {
+  font-size: .92rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ob-status {
+  font-size: .82rem;
+  opacity: .9;
+  margin-top: .15rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .4rem;
+}

@@ -7,6 +7,7 @@ import {
   getDoc, setDoc, serverTimestamp
 } from '../db.js';
 import { toast, currentQuarter, todayStr, formatNumber } from '../utils.js';
+import { checkAchievements } from './achievements.js';
 
 // 數字目標定義
 const NUM_GOALS = [
@@ -213,6 +214,14 @@ function _openUpdateModal(content, quarter, year, qData, ecctDone) {
         history: [...(qData.history ?? []), histEntry],
       };
       _renderPage(content, quarter, year, newQData, newECCT);
+
+      // 成就：MUFO 7/7 全達標
+      const newDoneCount = [
+        newRetailBV >= 1500, newIBV >= 300,
+        newRecruits >= 1,    newTickets >= 3,
+        newB5, newNUOT, newECCT,
+      ].filter(Boolean).length;
+      if (newDoneCount >= 7) checkAchievements({ first_mufo: true }).catch(() => {});
     } catch (err) {
       console.error('[mufo] save error', err);
       toast('儲存失敗，請重試', 'error');

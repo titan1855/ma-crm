@@ -10,9 +10,11 @@ import { toast, getGreeting } from './utils.js';
 import { init as initPool }      from './modules/pool.js';
 import { init as initProspects } from './modules/prospects.js';
 import { init as initDaily312, setCurrentProfile } from './modules/daily312.js';
-import { render as renderProducts }   from './modules/products.js';
-import { render as renderMufo }       from './modules/mufo.js';
-import { render as renderChallenges } from './modules/challenges.js';
+import { render as renderProducts }    from './modules/products.js';
+import { render as renderMufo }        from './modules/mufo.js';
+import { render as renderChallenges }  from './modules/challenges.js';
+import { render as renderAchievements } from './modules/achievements.js';
+import { render as renderWeekly, setWeeklyProfile } from './modules/weekly.js';
 
 // ---- 全域狀態（其他模組可 import state） ----
 export const state = {
@@ -127,9 +129,11 @@ function bindAuthButtons() {
 function registerMoreTab() {
   registerTab('more', (content, sub) => {
     // 子頁面路由
-    if (sub === 'products')   { renderProducts(content);   return; }
-    if (sub === 'mufo')       { renderMufo(content);       return; }
-    if (sub === 'challenges') { renderChallenges(content); return; }
+    if (sub === 'products')     { renderProducts(content);     return; }
+    if (sub === 'mufo')         { renderMufo(content);         return; }
+    if (sub === 'challenges')   { renderChallenges(content);   return; }
+    if (sub === 'achievements') { renderAchievements(content); return; }
+    if (sub === 'weekly')       { renderWeekly(content);       return; }
 
     content.innerHTML = `
       <div class="more-menu">
@@ -221,6 +225,7 @@ function enterApp() {
   initProspects();
   initDaily312();
   setCurrentProfile(state.profile);
+  setWeeklyProfile(state.profile, p => { state.profile = p; });
   registerMoreTab();
   initRouter();
   initMigration();
