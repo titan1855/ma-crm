@@ -538,17 +538,15 @@ async function init() {
   initSetupScreen();
 
   // 處理 signInWithRedirect 回來的結果
-  // （每次 App 初始化都要呼叫；若不是從 redirect 回來則直接 resolve null）
-  try {
-    await handleRedirectResult();
-  } catch (err) {
+  // 不 await：getRedirectResult 在無 redirect 時偶爾卡住，
+  // 讓它與 onUserReady 並行，Firebase 內部會在 redirect 結果出現時再觸發 onAuthStateChanged
+  handleRedirectResult().catch(err => {
     console.error('[auth] redirect error:', err);
     const code = err.code ?? '';
     if (code && code !== 'auth/cancelled-popup-request') {
-      // 等 login 畫面顯示後再 toast，方便使用者看到錯誤碼
       setTimeout(() => toast(`登入失敗（${code}）`, 'error'), 600);
     }
-  }
+  });
 
   onUserReady(async (user) => {
     if (!user) {
