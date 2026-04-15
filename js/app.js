@@ -537,16 +537,18 @@ async function init() {
   bindAuthButtons();
   initSetupScreen();
 
-  // 處理 signInWithRedirect 回來的結果
-  // 不 await：getRedirectResult 在無 redirect 時偶爾卡住，
-  // 讓它與 onUserReady 並行，Firebase 內部會在 redirect 結果出現時再觸發 onAuthStateChanged
-  handleRedirectResult().catch(err => {
-    console.error('[auth] redirect error:', err);
-    const code = err.code ?? '';
-    if (code && code !== 'auth/cancelled-popup-request') {
-      setTimeout(() => toast(`登入失敗（${code}）`, 'error'), 600);
-    }
-  });
+  // 只有 standalone（PWA）才需要處理 signInWithRedirect 的回傳結果
+  // 一般 Safari 呼叫 getRedirectResult 會觸發 Firebase 讀取 IndexedDB，
+  // 在私密瀏覽或部分環境下 IndexedDB 受限，導致 onAuthStateChanged 永遠不觸發
+  if (isStandaloneMode()) {
+    handleRedirectResult().catch(err => {
+      console.error('[auth] redirect error:', err);
+      const code = err.code ?? '';
+      if (code && code !== 'auth/cancelled-popup-request') {
+        setTimeout(() => toast(`登入失敗（${code}）`, 'error'), 600);
+      }
+    });
+  }
 
   onUserReady(async (user) => {
     if (!user) {
