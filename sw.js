@@ -1,4 +1,4 @@
-const CACHE = 'ma-crm-v3';
+const CACHE = 'ma-crm-v4';
 
 const ASSETS = [
   './',
@@ -47,13 +47,14 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Firebase / Google API 請求不快取，讓它走網路
+  // Firebase / Google API 與 CDN 請求不快取，讓它走網路
   const url = e.request.url;
   if (
     url.includes('firebaseapp.com') ||
     url.includes('googleapis.com/google.firestore') ||
     url.includes('identitytoolkit') ||
-    url.includes('securetoken.googleapis')
+    url.includes('securetoken.googleapis') ||
+    url.includes('gstatic.com/firebasejs')
   ) {
     return;
   }
