@@ -1,6 +1,8 @@
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -10,7 +12,7 @@ import { auth, db } from './firebase-config.js';
 const provider = new GoogleAuthProvider();
 let _isAdmin = false;
 
-/** 偵測是否為 PWA standalone 模式（iOS / Android） */
+/** 偵測是否為 PWA standalone 模式 */
 export function isStandaloneMode() {
   return (
     window.navigator.standalone === true ||
@@ -18,9 +20,26 @@ export function isStandaloneMode() {
   );
 }
 
-/** 觸發 Google 登入（signInWithPopup） */
+/**
+ * 觸發 Google 登入。
+ * - standalone（iOS PWA）→ signInWithRedirect：window.location 直接導航，
+ *   WKWebView 跟著跳頁，整個 redirect chain 在同一個 WebView 裡完成，
+ *   回到 App 後 getRedirectResult() 取得 user。
+ * - 一般瀏覽器 → signInWithPopup（彈出視窗）。
+ */
 export function login() {
+  if (isStandaloneMode()) {
+    return signInWithRedirect(auth, provider);
+  }
   return signInWithPopup(auth, provider);
+}
+
+/**
+ * 處理 redirect 回來的結果。
+ * 每次 App 初始化都要呼叫，若不是從 redirect 回來則回傳 null。
+ */
+export function handleRedirectResult() {
+  return getRedirectResult(auth);
 }
 
 /** 登出 */
