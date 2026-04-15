@@ -37,15 +37,11 @@ export function render(content) {
 
 // ── 骨架 HTML ──────────────────────────────────────────────
 
-const _contactsSupported = typeof navigator !== 'undefined'
-  && 'contacts' in navigator
-  && 'ContactsManager' in window;
-
 function _buildShell() {
   return `
     <div class="search-bar">
       <input class="search-input pool-search" type="search" placeholder="搜尋姓名…" autocomplete="off">
-      ${_contactsSupported ? `<button class="fab-btn pool-contacts-btn" title="從手機聯絡人匯入">👥</button>` : ''}
+      <button class="fab-btn pool-contacts-btn" title="從手機聯絡人匯入">👥</button>
       <button class="fab-btn pool-add-btn" title="新增名單">＋</button>
     </div>
     <div class="filter-chips">
@@ -221,6 +217,10 @@ function _buildCard(item) {
 // ── 從手機聯絡人匯入 ──────────────────────────────────────
 
 async function _importContacts() {
+  if (!('contacts' in navigator)) {
+    toast('你的裝置或瀏覽器不支援聯絡人匯入，請改用手動新增', 'warning');
+    return;
+  }
   try {
     const selected = await navigator.contacts.select(['name', 'tel'], { multiple: true });
     if (!selected || selected.length === 0) return;
