@@ -1,4 +1,4 @@
-const CACHE = 'ma-crm-v5';
+const CACHE = 'ma-crm-v6';
 
 const ASSETS = [
   './',
