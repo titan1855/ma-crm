@@ -553,6 +553,11 @@ async function init() {
   onUserReady(async (user) => {
     if (!user) {
       showScreen('login-screen');
+      // standalone 模式顯示 2FA 提示
+      if (isStandaloneMode()) {
+        const hint = document.getElementById('standalone-hint');
+        if (hint) hint.style.display = '';
+      }
       return;
     }
 
