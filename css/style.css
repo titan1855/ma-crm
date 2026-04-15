@@ -2131,3 +2131,68 @@ a { color: inherit; text-decoration: none; }
   margin-top: .5rem;
   text-align: left;
 }
+
+/* ── Email 登入 UI ───────────────────────────────────────── */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin: 1rem 0 .75rem;
+  color: var(--tx3);
+  font-size: .75rem;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--br);
+}
+
+.login-field {
+  width: 100%;
+  padding: .75rem 1rem;
+  border: 1.5px solid var(--br);
+  border-radius: 10px;
+  font-size: .9rem;
+  background: var(--bg);
+  color: var(--tx1);
+  margin-bottom: .5rem;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+}
+.login-field:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.btn-email-login {
+  width: 100%;
+  padding: .85rem;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: .25rem;
+}
+.btn-email-login:disabled {
+  opacity: .6;
+}
+
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: .6rem;
+}
+.btn-text-link {
+  background: none;
+  border: none;
+  color: var(--green);
+  font-size: .8rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}

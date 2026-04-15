@@ -46,9 +46,19 @@
           使用 Google 帳號登入
         </button>
         <p class="login-hint">僅限受邀的夥伴使用</p>
-        <p class="login-hint-standalone" id="standalone-hint" style="display:none">
-          ⚠️ iOS 限制：若 2 步驟驗證出現「發生問題」，請至 Google 帳號設定 → 安全性 → 2 步驟驗證，將方式改為「驗證器 App」或「簡訊」再試一次。
-        </p>
+
+        <div class="login-divider"><span>或使用 Email 登入</span></div>
+
+        <input id="login-email" class="login-field" type="email"
+               placeholder="Email" autocomplete="email" inputmode="email">
+        <input id="login-password" class="login-field" type="password"
+               placeholder="密碼" autocomplete="current-password">
+        <button id="btn-email-login" class="btn-email-login">Email 登入</button>
+
+        <div class="login-links">
+          <button id="btn-forgot-pw" class="btn-text-link">忘記密碼？</button>
+          <button id="btn-show-register" class="btn-text-link">建立新帳號</button>
+        </div>
       </div>
     </div>
   </div>

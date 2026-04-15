@@ -2,7 +2,8 @@
  * app.js — 應用進入點
  * 初始化 Firebase Auth、路由、全域狀態
  */
-import { onUserReady, login, logout, checkAllowList, isStandaloneMode, handleRedirectResult } from './auth.js';
+import { onUserReady, login, logout, checkAllowList, isStandaloneMode, handleRedirectResult,
+         loginWithEmail, registerWithEmail, resetPassword } from './auth.js';
 import { getProfile, setProfile, serverTimestamp, setCurrentUid, getDocs, userCollection, addAllowedUser, getAllowedUsers, removeAllowedUser } from './db.js';
 import { initRouter, registerTab, navigate } from './router.js';
 import { initMigration } from './migration.js';
@@ -117,6 +118,43 @@ function bindAuthButtons() {
     }
   });
 
+  // ── Email 登入 ──────────────────────────────────────────
+  document.getElementById('btn-email-login')?.addEventListener('click', async () => {
+    const email    = document.getElementById('login-email')?.value.trim();
+    const password = document.getElementById('login-password')?.value;
+    if (!email)    { toast('請輸入 Email', 'warning'); return; }
+    if (!password) { toast('請輸入密碼', 'warning'); return; }
+
+    const btn = document.getElementById('btn-email-login');
+    btn.disabled = true; btn.textContent = '登入中…';
+
+    try {
+      await loginWithEmail(email, password);
+      // onUserReady 接手後續流程
+    } catch (err) {
+      btn.disabled = false; btn.textContent = 'Email 登入';
+      const code = err.code ?? '';
+      if (code === 'auth/user-not-found' || code === 'auth/invalid-credential') {
+        toast('找不到此帳號，請先建立新帳號', 'warning');
+      } else if (code === 'auth/wrong-password' || code === 'auth/invalid-password') {
+        toast('密碼錯誤，請重新輸入', 'error');
+      } else {
+        toast(code ? `登入失敗（${code}）` : '登入失敗，請重試', 'error');
+      }
+    }
+  });
+
+  // ── 建立新帳號 ──────────────────────────────────────────
+  document.getElementById('btn-show-register')?.addEventListener('click', () => {
+    _showRegisterModal();
+  });
+
+  // ── 忘記密碼 ────────────────────────────────────────────
+  document.getElementById('btn-forgot-pw')?.addEventListener('click', () => {
+    _showForgotPasswordModal();
+  });
+
+  // ── 登出按鈕 ────────────────────────────────────────────
   document.getElementById('btn-logout-rejected')?.addEventListener('click', () => {
     logout();
   });
@@ -505,6 +543,136 @@ function _renderSettings(content) {
       btn.disabled = false; btn.textContent = '匯出資料（JSON）';
     }
   });
+}
+
+// ── 建立新帳號 Modal ──────────────────────────────────────
+
+function _showRegisterModal() {
+  const prefillEmail = document.getElementById('login-email')?.value.trim() ?? '';
+  const container = document.getElementById('modal-container');
+  const el = document.createElement('div');
+  el.className = 'modal-backdrop';
+  el.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-title">建立新帳號</div>
+      <p style="font-size:.82rem;color:var(--tx3);margin-bottom:.75rem">
+        首次使用請建立帳號；之後可直接以 Email + 密碼登入。
+      </p>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="reg-email" type="email"
+               value="${_esc(prefillEmail)}" placeholder="your@gmail.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">設定密碼</label>
+        <input class="form-input" id="reg-password" type="password"
+               placeholder="至少 6 個字元" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label class="form-label">確認密碼</label>
+        <input class="form-input" id="reg-password2" type="password"
+               placeholder="再輸入一次" autocomplete="new-password">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" id="reg-cancel">取消</button>
+        <button class="btn btn-primary" id="reg-submit">建立帳號</button>
+      </div>
+    </div>
+  `;
+  container.appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+
+  const closeModal = () => {
+    el.classList.remove('show');
+    el.addEventListener('transitionend', () => el.remove(), { once: true });
+  };
+  el.querySelector('#reg-cancel').onclick = closeModal;
+  el.addEventListener('click', e => { if (e.target === el) closeModal(); });
+
+  el.querySelector('#reg-submit').onclick = async () => {
+    const email = el.querySelector('#reg-email').value.trim();
+    const pw1   = el.querySelector('#reg-password').value;
+    const pw2   = el.querySelector('#reg-password2').value;
+
+    if (!email)       { toast('請輸入 Email', 'warning'); return; }
+    if (pw1.length < 6) { toast('密碼至少需要 6 個字元', 'warning'); return; }
+    if (pw1 !== pw2)  { toast('兩次密碼不一致', 'warning'); return; }
+
+    const btn = el.querySelector('#reg-submit');
+    btn.disabled = true; btn.textContent = '建立中…';
+
+    try {
+      await registerWithEmail(email, pw1);
+      closeModal();
+      // onUserReady 接手，包含白名單驗證
+    } catch (err) {
+      btn.disabled = false; btn.textContent = '建立帳號';
+      const code = err.code ?? '';
+      if (code === 'auth/email-already-in-use') {
+        toast('此 Email 已有帳號，請直接登入', 'warning');
+        closeModal();
+      } else if (code === 'auth/weak-password') {
+        toast('密碼強度不足，請使用更複雜的密碼', 'warning');
+      } else {
+        toast(code ? `建立失敗（${code}）` : '建立失敗，請重試', 'error');
+      }
+    }
+  };
+}
+
+// ── 忘記密碼 Modal ────────────────────────────────────────
+
+function _showForgotPasswordModal() {
+  const prefillEmail = document.getElementById('login-email')?.value.trim() ?? '';
+  const container = document.getElementById('modal-container');
+  const el = document.createElement('div');
+  el.className = 'modal-backdrop';
+  el.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-title">重設密碼</div>
+      <p style="font-size:.82rem;color:var(--tx3);margin-bottom:.75rem">
+        輸入你的 Email，我們將寄送重設密碼連結。
+      </p>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="reset-email" type="email"
+               value="${_esc(prefillEmail)}" placeholder="your@gmail.com" autocomplete="email">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" id="reset-cancel">取消</button>
+        <button class="btn btn-primary" id="reset-send">發送重設信</button>
+      </div>
+    </div>
+  `;
+  container.appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+
+  const closeModal = () => {
+    el.classList.remove('show');
+    el.addEventListener('transitionend', () => el.remove(), { once: true });
+  };
+  el.querySelector('#reset-cancel').onclick = closeModal;
+  el.addEventListener('click', e => { if (e.target === el) closeModal(); });
+
+  el.querySelector('#reset-send').onclick = async () => {
+    const email = el.querySelector('#reset-email').value.trim();
+    if (!email) return;
+    const btn = el.querySelector('#reset-send');
+    btn.disabled = true; btn.textContent = '發送中…';
+    try {
+      await resetPassword(email);
+      toast('重設密碼信已寄出，請查收信箱', 'success');
+      closeModal();
+    } catch (err) {
+      btn.disabled = false; btn.textContent = '發送重設信';
+      const code = err.code ?? '';
+      if (code === 'auth/user-not-found') {
+        toast('找不到此 Email 帳號', 'warning');
+      } else {
+        toast(code ? `發送失敗（${code}）` : '發送失敗，請重試', 'error');
+      }
+    }
+  };
 }
 
 function _esc(str) {
