@@ -97,6 +97,12 @@ function _bindEvents(content) {
       if (item) _openDeleteConfirm(item);
       return;
     }
+    if (e.target.closest('.pool-unselect-btn')) {
+      const btn = e.target.closest('.pool-unselect-btn');
+      const item = _allItems.find(x => x.id === btn.dataset.id);
+      if (item) _unselectItem(item);
+      return;
+    }
   });
 }
 
@@ -186,16 +192,30 @@ function _buildCard(item) {
     closed:   `<span class="badge badge-paused">已結案</span>`,
   }[item.status] ?? '';
 
-  const actionHtml = item.status === 'pending'
-    ? `
+  let actionHtml = '';
+  if (item.status === 'pending') {
+    actionHtml = `
       <div class="pool-card-btns">
         <button class="btn btn-secondary pool-select-btn" data-id="${item.id}" style="font-size:.75rem;padding:.28rem .7rem">選入首選 →</button>
         <div class="pool-icon-btns">
           <button class="pool-edit-btn icon-btn" data-id="${item.id}" title="編輯">✏️</button>
           <button class="pool-delete-btn icon-btn" data-id="${item.id}" title="刪除">🗑️</button>
         </div>
-      </div>`
-    : '';
+      </div>`;
+  } else if (item.status === 'selected') {
+    actionHtml = `
+      <div class="pool-icon-btns" style="margin-top:4px">
+        <button class="pool-unselect-btn icon-btn" data-id="${item.id}" title="移回待篩選">↩️</button>
+        <button class="pool-edit-btn icon-btn" data-id="${item.id}" title="編輯">✏️</button>
+        <button class="pool-delete-btn icon-btn" data-id="${item.id}" title="刪除">🗑️</button>
+      </div>`;
+  } else if (item.status === 'closed') {
+    actionHtml = `
+      <div class="pool-icon-btns" style="margin-top:4px">
+        <button class="pool-edit-btn icon-btn" data-id="${item.id}" title="編輯">✏️</button>
+        <button class="pool-delete-btn icon-btn" data-id="${item.id}" title="刪除">🗑️</button>
+      </div>`;
+  }
 
   return `
     <div class="card">
@@ -262,6 +282,18 @@ async function _importContacts() {
     if (err.name === 'AbortError') return; // 使用者取消，不顯示錯誤
     console.error('[pool] contacts import error', err);
     toast('匯入失敗，請重試', 'error');
+  }
+}
+
+// ── 移回待篩選 ────────────────────────────────────────────
+
+async function _unselectItem(item) {
+  try {
+    await updateDoc(userSubDoc('pool', item.id), { status: 'pending' });
+    toast(`${item.name} 已移回待篩選`, 'info');
+  } catch (err) {
+    console.error('[pool] unselect error', err);
+    toast('操作失敗，請重試', 'error');
   }
 }
 
