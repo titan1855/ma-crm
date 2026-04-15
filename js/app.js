@@ -332,7 +332,7 @@ async function _loadInvitePage(content) {
     <div class="card inv-add-card">
       <div class="inv-add-title">新增夥伴</div>
       <div class="form-group">
-        <label class="form-label">Gmail</label>
+        <label class="form-label">Email</label>
         <input class="form-input" id="inv-email" type="email" placeholder="example@gmail.com" autocomplete="off">
       </div>
       <div class="form-group">
