@@ -37,10 +37,15 @@ export function render(content) {
 
 // ── 骨架 HTML ──────────────────────────────────────────────
 
+const _contactsSupported = typeof navigator !== 'undefined'
+  && 'contacts' in navigator
+  && 'ContactsManager' in window;
+
 function _buildShell() {
   return `
     <div class="search-bar">
       <input class="search-input pool-search" type="search" placeholder="搜尋姓名…" autocomplete="off">
+      ${_contactsSupported ? `<button class="fab-btn pool-contacts-btn" title="從手機聯絡人匯入">👥</button>` : ''}
       <button class="fab-btn pool-add-btn" title="新增名單">＋</button>
     </div>
     <div class="filter-chips">
@@ -63,6 +68,7 @@ function _bindEvents(content) {
     }, 250)
   );
 
+  content.querySelector('.pool-contacts-btn')?.addEventListener('click', _importContacts);
   content.querySelector('.pool-add-btn').addEventListener('click', _openAddModal);
 
   content.querySelector('.filter-chips').addEventListener('click', e => {
@@ -210,6 +216,53 @@ function _buildCard(item) {
       </div>
     </div>
   `;
+}
+
+// ── 從手機聯絡人匯入 ──────────────────────────────────────
+
+async function _importContacts() {
+  try {
+    const selected = await navigator.contacts.select(['name', 'tel'], { multiple: true });
+    if (!selected || selected.length === 0) return;
+
+    // 過濾掉沒有名字的聯絡人
+    const valid = selected.filter(c => c.name?.[0]?.trim());
+    if (valid.length === 0) {
+      toast('選取的聯絡人都沒有姓名，請重試', 'warning');
+      return;
+    }
+
+    // 取得現有名單池姓名，避免完全重複
+    const existingNames = new Set(_allItems.map(x => x.name?.trim()));
+
+    let added = 0;
+    let skipped = 0;
+    for (const contact of valid) {
+      const name = contact.name[0].trim();
+      if (existingNames.has(name)) { skipped++; continue; }
+      await addDoc(userCollection('pool'), {
+        name,
+        howMet:     '',
+        impression: '',
+        status:     'pending',
+        createdAt:  serverTimestamp(),
+      });
+      recordPoolAdded(null, name).catch(() => {});
+      added++;
+    }
+
+    if (added > 0) {
+      checkAchievements({ pool_count: _allItems.length + added }).catch(() => {});
+      const skipMsg = skipped > 0 ? `（${skipped} 位已存在略過）` : '';
+      toast(`已匯入 ${added} 位聯絡人${skipMsg}`, 'success');
+    } else {
+      toast('所有選取的聯絡人都已在名單池中', 'info');
+    }
+  } catch (err) {
+    if (err.name === 'AbortError') return; // 使用者取消，不顯示錯誤
+    console.error('[pool] contacts import error', err);
+    toast('匯入失敗，請重試', 'error');
+  }
 }
 
 // ── 編輯名單 Modal ─────────────────────────────────────────
