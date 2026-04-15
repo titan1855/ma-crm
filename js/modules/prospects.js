@@ -608,6 +608,10 @@ function _openEditModal(p) {
     if (!ok) return;
     try {
       await deleteDoc(userSubDoc('prospects', p.id));
+      // 同步將名單池的狀態改回待篩選
+      if (p.poolRef) {
+        updateDoc(userSubDoc('pool', p.poolRef), { status: 'pending' }).catch(() => {});
+      }
       toast(`已刪除 ${p.name}`, 'info');
       _closeModal(el);
       _closeDetail();
