@@ -2196,3 +2196,30 @@ a { color: inherit; text-decoration: none; }
   padding: 0;
   text-decoration: underline;
 }
+
+/* ── 名單池卡片：編輯 / 刪除按鈕 ── */
+.pool-card-btns {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .3rem;
+}
+.pool-icon-btns {
+  display: flex;
+  gap: .25rem;
+}
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: .2rem .3rem;
+  border-radius: 6px;
+  line-height: 1;
+  opacity: .65;
+  transition: opacity .15s, background .15s;
+}
+.icon-btn:hover {
+  opacity: 1;
+  background: rgba(0,0,0,.07);
+}

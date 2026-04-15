@@ -5,7 +5,7 @@
 import { registerTab } from '../router.js';
 import {
   userCollection, userSubDoc,
-  addDoc, updateDoc, onSnapshot,
+  addDoc, updateDoc, deleteDoc, onSnapshot,
   query, orderBy, serverTimestamp
 } from '../db.js';
 import { toast, avatarColor, avatarInitial, emptyState, debounce } from '../utils.js';
@@ -75,12 +75,26 @@ function _bindEvents(content) {
     _renderList(content);
   });
 
-  // 選入首選（事件代理）
+  // 選入首選 / 編輯 / 刪除（事件代理）
   content.querySelector('.pool-list-area').addEventListener('click', e => {
-    const btn = e.target.closest('.pool-select-btn');
-    if (!btn) return;
-    const item = _allItems.find(x => x.id === btn.dataset.id);
-    if (item) _openSelectModal(item);
+    if (e.target.closest('.pool-select-btn')) {
+      const btn = e.target.closest('.pool-select-btn');
+      const item = _allItems.find(x => x.id === btn.dataset.id);
+      if (item) _openSelectModal(item);
+      return;
+    }
+    if (e.target.closest('.pool-edit-btn')) {
+      const btn = e.target.closest('.pool-edit-btn');
+      const item = _allItems.find(x => x.id === btn.dataset.id);
+      if (item) _openEditModal(item);
+      return;
+    }
+    if (e.target.closest('.pool-delete-btn')) {
+      const btn = e.target.closest('.pool-delete-btn');
+      const item = _allItems.find(x => x.id === btn.dataset.id);
+      if (item) _openDeleteConfirm(item);
+      return;
+    }
   });
 }
 
@@ -171,7 +185,14 @@ function _buildCard(item) {
   }[item.status] ?? '';
 
   const actionHtml = item.status === 'pending'
-    ? `<button class="btn btn-secondary pool-select-btn" data-id="${item.id}" style="font-size:.75rem;padding:.28rem .7rem;margin-top:4px">選入首選 →</button>`
+    ? `
+      <div class="pool-card-btns">
+        <button class="btn btn-secondary pool-select-btn" data-id="${item.id}" style="font-size:.75rem;padding:.28rem .7rem">選入首選 →</button>
+        <div class="pool-icon-btns">
+          <button class="pool-edit-btn icon-btn" data-id="${item.id}" title="編輯">✏️</button>
+          <button class="pool-delete-btn icon-btn" data-id="${item.id}" title="刪除">🗑️</button>
+        </div>
+      </div>`
     : '';
 
   return `
@@ -189,6 +210,99 @@ function _buildCard(item) {
       </div>
     </div>
   `;
+}
+
+// ── 編輯名單 Modal ─────────────────────────────────────────
+
+function _openEditModal(item) {
+  const el = _createModal(`
+    <div class="modal-title">編輯名單</div>
+    <div class="form-group">
+      <label class="form-label">姓名 <span style="color:var(--dg)">*</span></label>
+      <input class="form-input" id="pool-edit-name" value="${_esc(item.name || '')}" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">怎麼認識的</label>
+      <input class="form-input" id="pool-edit-howmet" value="${_esc(item.howMet || '')}" placeholder="例：大學同學、健身房認識">
+    </div>
+    <div class="form-group">
+      <label class="form-label">大概印象</label>
+      <textarea class="form-textarea" id="pool-edit-impression" placeholder="例：對健康有興趣、在找副業" style="min-height:70px">${_esc(item.impression || '')}</textarea>
+    </div>
+    <div class="pool-modal-actions">
+      <button class="btn btn-ghost pool-modal-cancel">取消</button>
+      <button class="btn btn-primary pool-modal-save">儲存</button>
+    </div>
+  `);
+
+  setTimeout(() => el.querySelector('#pool-edit-name')?.focus(), 300);
+
+  el.querySelector('.pool-modal-cancel').onclick = () => _closeModal(el);
+  el.addEventListener('click', e => { if (e.target === el) _closeModal(el); });
+
+  el.querySelector('.pool-modal-save').onclick = async () => {
+    const nameInput = el.querySelector('#pool-edit-name');
+    const name = nameInput.value.trim();
+    if (!name) {
+      nameInput.style.borderColor = 'var(--dg)';
+      nameInput.focus();
+      return;
+    }
+    const saveBtn = el.querySelector('.pool-modal-save');
+    saveBtn.disabled = true;
+    saveBtn.textContent = '儲存中…';
+
+    try {
+      await updateDoc(userSubDoc('pool', item.id), {
+        name,
+        howMet:     el.querySelector('#pool-edit-howmet').value.trim(),
+        impression: el.querySelector('#pool-edit-impression').value.trim(),
+      });
+      toast(`已更新 ${name}`, 'success');
+      _closeModal(el);
+    } catch (err) {
+      console.error('[pool] updateDoc error', err);
+      toast('更新失敗，請重試', 'error');
+      saveBtn.disabled = false;
+      saveBtn.textContent = '儲存';
+    }
+  };
+}
+
+// ── 刪除確認 ──────────────────────────────────────────────
+
+function _openDeleteConfirm(item) {
+  const el = _createModal(`
+    <div class="modal-title">刪除名單</div>
+    <p style="margin:.5rem 0 1.25rem;color:var(--tx2)">
+      確定要刪除 <strong>${_esc(item.name)}</strong>？<br>
+      <span style="font-size:.82rem;color:var(--tx3)">此操作無法復原。</span>
+    </p>
+    <div class="pool-modal-actions">
+      <button class="btn btn-ghost pool-modal-cancel">取消</button>
+      <button class="btn btn-danger pool-modal-delete">刪除</button>
+    </div>
+  `);
+
+  el.querySelector('.pool-modal-cancel').onclick = () => _closeModal(el);
+  el.addEventListener('click', e => { if (e.target === el) _closeModal(el); });
+
+  el.querySelector('.pool-modal-delete').onclick = async () => {
+    const deleteBtn = el.querySelector('.pool-modal-delete');
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = '刪除中…';
+
+    try {
+      await deleteDoc(userSubDoc('pool', item.id));
+      toast(`已刪除 ${item.name}`, 'info');
+      _closeModal(el);
+    } catch (err) {
+      console.error('[pool] deleteDoc error', err);
+      toast('刪除失敗，請重試', 'error');
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = '刪除';
+    }
+  };
 }
 
 // ── 新增名單 Modal ─────────────────────────────────────────
