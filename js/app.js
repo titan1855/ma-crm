@@ -2,7 +2,7 @@
  * app.js — 應用進入點
  * 初始化 Firebase Auth、路由、全域狀態
  */
-import { onUserReady, login, logout, checkAllowList, isStandaloneMode, handleRedirectResult,
+import { onUserReady, logout, checkAllowList,
          loginWithEmail, registerWithEmail, resetPassword } from './auth.js';
 import { getProfile, setProfile, serverTimestamp, setCurrentUid, getDocs, userCollection, addAllowedUser, getAllowedUsers, removeAllowedUser } from './db.js';
 import { initRouter, registerTab, navigate } from './router.js';
@@ -101,25 +101,8 @@ function initSetupScreen() {
 // ==============================
 
 function bindAuthButtons() {
-  document.getElementById('btn-google-login')?.addEventListener('click', async () => {
-    const btn = document.getElementById('btn-google-login');
-    btn.disabled = true;
-
-    try {
-      await login();
-      // signInWithPopup：onUserReady 接手
-      // signInWithRedirect：頁面直接導走，不會 resolve
-    } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        const msg = err.code ? `登入失敗（${err.code}）` : '登入失敗，請重試';
-        toast(msg, 'error');
-      }
-      btn.disabled = false;
-    }
-  });
-
-  // ── Email 登入 ──────────────────────────────────────────
-  document.getElementById('btn-email-login')?.addEventListener('click', async () => {
+  // ── Email 登入（form submit 或按鈕點擊） ────────────────
+  const doEmailLogin = async () => {
     const email    = document.getElementById('login-email')?.value.trim();
     const password = document.getElementById('login-password')?.value;
     if (!email)    { toast('請輸入 Email', 'warning'); return; }
@@ -132,17 +115,28 @@ function bindAuthButtons() {
       await loginWithEmail(email, password);
       // onUserReady 接手後續流程
     } catch (err) {
-      btn.disabled = false; btn.textContent = 'Email 登入';
+      btn.disabled = false; btn.textContent = '登入';
       const code = err.code ?? '';
-      if (code === 'auth/user-not-found' || code === 'auth/invalid-credential') {
-        toast('找不到此帳號，請先建立新帳號', 'warning');
-      } else if (code === 'auth/wrong-password' || code === 'auth/invalid-password') {
+      if (code === 'auth/user-not-found') {
+        toast('找不到此帳號，請先點「建立新帳號」', 'warning');
+      } else if (code === 'auth/wrong-password') {
         toast('密碼錯誤，請重新輸入', 'error');
+      } else if (code === 'auth/invalid-credential') {
+        // Firebase 10 新版統一錯誤碼（含帳號不存在或密碼錯誤）
+        toast('Email 或密碼錯誤', 'error');
+      } else if (code === 'auth/invalid-email') {
+        toast('Email 格式不正確', 'warning');
       } else {
         toast(code ? `登入失敗（${code}）` : '登入失敗，請重試', 'error');
       }
     }
+  };
+
+  document.getElementById('login-form')?.addEventListener('submit', e => {
+    e.preventDefault();
+    doEmailLogin();
   });
+  document.getElementById('btn-email-login')?.addEventListener('click', doEmailLogin);
 
   // ── 建立新帳號 ──────────────────────────────────────────
   document.getElementById('btn-show-register')?.addEventListener('click', () => {
@@ -609,7 +603,7 @@ function _showRegisterModal() {
       btn.disabled = false; btn.textContent = '建立帳號';
       const code = err.code ?? '';
       if (code === 'auth/email-already-in-use') {
-        toast('此 Email 已有帳號，請直接登入', 'warning');
+        toast('此 Email 已有帳號。請關閉此視窗，用「忘記密碼」設定密碼後再登入。', 'warning');
         closeModal();
       } else if (code === 'auth/weak-password') {
         toast('密碼強度不足，請使用更複雜的密碼', 'warning');
@@ -705,27 +699,9 @@ async function init() {
   bindAuthButtons();
   initSetupScreen();
 
-  // 只有 standalone（PWA）才需要處理 signInWithRedirect 的回傳結果
-  // 一般 Safari 呼叫 getRedirectResult 會觸發 Firebase 讀取 IndexedDB，
-  // 在私密瀏覽或部分環境下 IndexedDB 受限，導致 onAuthStateChanged 永遠不觸發
-  if (isStandaloneMode()) {
-    handleRedirectResult().catch(err => {
-      console.error('[auth] redirect error:', err);
-      const code = err.code ?? '';
-      if (code && code !== 'auth/cancelled-popup-request') {
-        setTimeout(() => toast(`登入失敗（${code}）`, 'error'), 600);
-      }
-    });
-  }
-
   onUserReady(async (user) => {
     if (!user) {
       showScreen('login-screen');
-      // standalone 模式顯示 2FA 提示
-      if (isStandaloneMode()) {
-        const hint = document.getElementById('standalone-hint');
-        if (hint) hint.style.display = '';
-      }
       return;
     }
 

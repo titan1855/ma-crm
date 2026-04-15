@@ -1,8 +1,4 @@
 import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -12,33 +8,7 @@ import {
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { auth, db } from './firebase-config.js';
 
-const provider = new GoogleAuthProvider();
 let _isAdmin = false;
-
-/** 偵測是否為 PWA standalone 模式 */
-export function isStandaloneMode() {
-  return (
-    window.navigator.standalone === true ||
-    window.matchMedia('(display-mode: standalone)').matches
-  );
-}
-
-/**
- * 觸發 Google 登入。
- * - standalone（iOS PWA）→ signInWithRedirect
- * - 一般瀏覽器 → signInWithPopup
- */
-export function login() {
-  if (isStandaloneMode()) {
-    return signInWithRedirect(auth, provider);
-  }
-  return signInWithPopup(auth, provider);
-}
-
-/** 處理 redirect 回來的結果（每次 App 初始化都要呼叫） */
-export function handleRedirectResult() {
-  return getRedirectResult(auth);
-}
 
 /** Email + 密碼登入 */
 export function loginWithEmail(email, password) {
@@ -83,7 +53,7 @@ export function isAdmin() {
 export async function checkAllowList(email) {
   if (!email) return null;
   try {
-    const ref = doc(db, 'allowedUsers', email);
+    const ref = doc(db, 'allowedUsers', email.toLowerCase().trim());
     const snap = await getDoc(ref);
     if (snap.exists()) {
       const data = snap.data();
